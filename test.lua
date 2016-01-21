@@ -15,24 +15,24 @@ local function setup_global(opt)
     torch.manualSeed(opt.seed or 123)
 end
 
-local function get_dft_opt()
-    local opt = {}
-
-    opt.gpuId = 1
-    opt.seed = 123
-
-    opt.dataPath = 'data/ptb.lua'
-    opt.envPath = 'path/to/saved/env'
-
-    opt.batSize = 500
-    opt.seqLength = 200
-
-    return opt
-end
-
 local this = {}
 
 this.main = function(opt)
+    local function get_dft_opt()
+        local opt = {}
+
+        opt.gpuId = 1
+        opt.seed = 123
+
+        opt.dataPath = 'data/ptb.lua'
+        opt.envPath = 'path/to/saved/env'
+
+        opt.batSize = 500
+        opt.seqLength = 200
+
+        return opt
+    end
+
     print('[options]')
     opt = opt or {}
     opt = tablex.merge(get_dft_opt(), opt, true)
@@ -135,4 +135,22 @@ this.main = function(opt)
     return outputsAll, targetsAll
 end -- main
 
+this.save_miscls = function(outputs, targets, opt)
+    opt = opt or {}
+    local fnMisCls = opt.fnMisCls or 'mis.txt'
+    print('saving mis classification to ' .. fnMisCls)
+
+    assert(outputs:dim()==2 and targets:dim()==1)
+    assert(outputs:size(1) == targets:size(1))
+
+    -- misclass index
+    local _, pred = outputs:max(2)
+    pred = pred:squeeze()
+    assert(pred:numel() == targets:numel())
+    local ind = pred:ne(targets):long():nonzero()
+
+    -- write to txt
+    require'pl.file'
+    file.write(fnMisCls, ind:__tostring())
+end
 return this

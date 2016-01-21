@@ -1,10 +1,10 @@
---- make imdb dataset, use pre-defined char vocab
+--- make imdb dataset, use pre-defined lower-case char vocab
 require'pl.path'
 require'pl.stringx'
 require'pl.file'
 
 local DATA_PATH = '/home/ps/data/imdb'
-local DATA_OUT = path.join(DATA_PATH, 'char-t7V2')
+local DATA_OUT = path.join(DATA_PATH, 'char-t7V3')
 local FN_TOK_TRAIN = 'imdb-train.txt.tok'
 local FN_CAT_TRAIN = 'imdb-train.cat'
 local FN_TOK_TEST = 'imdb-test.txt.tok'
@@ -25,20 +25,17 @@ local function update_vocab(vocab, str)
 end
 
 local function make_vocab()
-    local chars =
-            "abcdefghijklmnopqrstuvwxyz" .. -- 26
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ" ..  -- 26
-            "1234567890" .. -- 10
-            "`!@#$%&*-=" .. -- 10
-            "'" .. ";:" .. ",.?" .. "/" .. "\\" ..  -- 8
-            " "
+    --- from Crepe + SPACE. size 69
+    local chars = "abcdefghijklmnopqrstuvwxyz0123456789,;.!?:'\"/\\|_@#$%^&*~`+=<>()[]{}" .. " "
 
     local vchar, count = {}, 0
     for i = 1, #chars do
         local c = string.sub(chars, i,i)
+        print(i .. ': ' .. c)
         if not vchar[c] then
             count = count + 1
             vchar[c] = count
+            print('count ' .. count .. ', inserting ' .. c)
         end
     end
 
@@ -47,6 +44,8 @@ end
 
 -- make dataset
 local function line_to_tensor(line, vocab)
+    line = string.lower(line) -- to lower case!
+
     local count = 0
     local xx = torch.ByteTensor(#line)
     for i = 1, xx:numel() do
@@ -115,6 +114,7 @@ local function main()
     -- make and save vocab
     local vocab = make_vocab()
     local fnVocab = path.join(DATA_OUT, 'vocab.t7')
+    print('made vocab size = ' .. tablex.size(vocab))
     print('saving vocab to ' .. fnVocab)
     torch.save(fnVocab, vocab)
 
