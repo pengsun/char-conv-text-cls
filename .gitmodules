@@ -1,0 +1,3 @@
+[submodule "util/googleword2vec"]
+	path = util/googleword2vec
+	url = https://github.com/pengsun/word2vec.torch.git
