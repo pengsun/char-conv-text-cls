@@ -25,23 +25,23 @@ local function make_lrEpCheckpoint_big()
   return r
 end
 
-local netname = 'cv24max-o'
+local netname = 'cv6pl4x3max-o'
 local batSize = 250
-local seqLength = 887
-local HU = 1000
+local seqLength = 1000
+local HU = 128
 
 local opt = {
   mdPath = path.join('net', netname .. '.lua'),
 
-  dataPath = 'data/imdb-rand.lua',
-  envSavePath = 'cv/imdb-randchar',
+  dataPath = 'data/imdb-fixtail.lua',
+  envSavePath = 'cv/imdb-fixtailchar',
 
   envSavePrefix = 'seqLength' .. seqLength .. '-' ..
           'HU' .. HU .. '-' ..
           netname,
 
   seqLength = seqLength,
-  V = 81 + 1, -- vocab + oov(null)
+  V = 69 + 1, -- vocab + oov(null)
   HU = HU,
   numClasses = 2,
 

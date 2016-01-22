@@ -2,24 +2,7 @@ require'cudnn'
 require'OneHot'
 util = require'util.misc'
 
-local envFn = 'seqLength887-HU1000-cv24max-o_epoch9.00_lossval0.3811.t7'
 
-math.randomseed(os.time())
-local opt = {
-    dataPath = 'data/imdb-fix.lua',
-    dataMask = {tr=false, val=false, te=true},
-
-    envPath = path.join('cv', 'imdb-randchar', envFn),
-
-    seqLength = 887,
-    batSize = 1,
-
-    ibat = 4829, -- which data batch interested
-    iclass = nil, -- which class interested, use that from label y if nil value
-
---    ibat = math.random(1,25000), -- which data batch interested
---    iclass = nil, -- which class interested, use that from label y if nil value
-}
 
 local function load_data(opt)
     local tr,val,te,vchar = dofile(opt.dataPath).main(opt)
@@ -136,8 +119,33 @@ local function chars_saliency_to_str(chars, s, dispWidth)
     return str
 end
 
-local function main(opt)
-    local opt = opt or {}
+local this = {}
+this.main = function(opt)
+    local function get_dft_opt()
+        local envFn = 'seqLength887-HU1000-cv8max-o_epoch15.00_lossval0.3137.t7'
+
+        math.randomseed(os.time())
+        local opt = {
+            dispWidth = 210,
+
+            dataPath = 'data/imdb-fix.lua',
+            dataMask = {tr=false, val=false, te=true},
+
+            envPath = path.join('cv', 'imdb-randchar', envFn),
+
+            seqLength = 887,
+            batSize = 1,
+
+            ibat = 24837, -- which data batch interested
+            iclass = 1, -- which class interested, use that from label y if nil value
+
+            --    ibat = math.random(1,25000), -- which data batch interested
+            --    iclass = nil, -- which class interested, use that from label y if nil value
+        }
+        return opt
+    end
+
+    local opt = opt or get_dft_opt()
     print('options:')
     print(opt)
 
@@ -151,9 +159,9 @@ local function main(opt)
     local ibat = opt.ibat or 1
     local x, y = get_data_batch(loader, ibat)
     assert(y:numel()==1)
+    print('target = ' .. y[1])
 
     --- get input chars
-    require'mobdebug'.start()
     local chars = tensor_to_chars(x, ivocabChar) -- B, {M}
 
     --- get saliency map
@@ -171,11 +179,11 @@ local function main(opt)
     print('prediction = ' .. pred:squeeze())
 
     --- render the sailiency map
-    local dispWidth = 70
+    local dispWidth = opt.dispWidth or 70
     local str = chars_saliency_to_str(chars, s, dispWidth)
     print("\n")
     print(str)
 
 end
 
-main(opt)
+return this
