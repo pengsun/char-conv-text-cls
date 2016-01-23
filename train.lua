@@ -136,7 +136,9 @@ this.main = function (opt)
     if opt.gpuId > 0 then -- to gpu
       require'cutorch'
       require'cunn'
-      loaderTr:cuda(); loaderVal:cuda(); loaderTe:cuda(); -- lazy
+      loaderTr:cuda();
+      if loaderVal then loaderVal:cuda() end
+      if loaderTe then loaderTe:cuda() end -- lazy
       md:cuda(); cri:cuda();
     end
   end

@@ -11,8 +11,8 @@ local function get_fix_wordvec_seq(src, seqlen, vecsize)
 	local dst = torch.zeros(seqlen, vecsize, 'torch.FloatTensor')
 
 	-- the source range at tail
-	local srcBeg = math.max(src:numel()-seqlen+1,1)
-	local srcEnd = src:numel()
+	local srcBeg = math.max(src:size(1)-seqlen+1,1)
+	local srcEnd = src:size(1)
 	local realLenth = srcEnd-srcBeg+1
 	-- the destination range at tail
 	local dstBeg = seqlen-realLenth+1
@@ -34,7 +34,7 @@ function LoaderTCFixTailWordvec:__init(ffnData, batSize, seqLength)
 	self.y = data.y
 	assert( #self.x == self.y:numel() )
 	print('LoaderTCFixTailWordvec: data size = ' .. #self.x )
-	self.vecSize = #self.x[1]:size(2)
+	self.vecSize = self.x[1]:size(2)
 	print('LoaderTCFixTailWordvec: vector size = ' .. self.vecSize)
 
 	self.batSize = batSize or 500
@@ -86,7 +86,8 @@ function LoaderTCFixTailWordvec:next_batch()
 	for i = 1, self.batSize do
 		local ind = self.instIndex[ixBase + i]
 
-		xx[i]:copy( get_fix_wordvec_seq(self.x[ind], self.seqLength) )
+		--require'mobdebug'.start()
+		xx[i]:copy( get_fix_wordvec_seq(self.x[ind], self.seqLength, self.vecSize) )
 		yy[i] = self.y[ind]
 	end
 

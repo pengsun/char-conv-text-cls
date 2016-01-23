@@ -4,7 +4,8 @@ require'pl.stringx'
 require'pl.file'
 require'xlua'
 
-local DATA_PATH = '/home/ps/data/imdb'
+--local DATA_PATH = '/home/ps/data/imdb'
+local DATA_PATH = '/mnt/data/datasets/Text/imdb'
 local DATA_OUT = path.join(DATA_PATH, 'googleword2vec-t7')
 local FN_TOK_TRAIN = 'imdb-train.txt.tok'
 local FN_CAT_TRAIN = 'imdb-train.cat'
@@ -96,18 +97,18 @@ local function main()
     local wv = require'util.googleword2vec.w2vutils'
 
     -- make tr
---    make_t7(path.join(DATA_PATH, FN_TOK_TRAIN), wv,
---        path.join(DATA_PATH, FN_CAT_TRAIN),
---        path.join(DATA_OUT, 'tr.t7')
---    )
+    make_t7(path.join(DATA_PATH, FN_TOK_TRAIN), wv,
+        path.join(DATA_PATH, FN_CAT_TRAIN),
+        path.join(DATA_OUT, 'tr.t7')
+    )
     collectgarbage()
 
     -- make te
-    make_t7(path.join(DATA_PATH, FN_TOK_TEST), wv,
-        path.join(DATA_PATH, FN_CAT_TEST),
-        path.join(DATA_OUT, 'te.t7')
-    )
-    collectgarbage()
+--    make_t7(path.join(DATA_PATH, FN_TOK_TEST), wv,
+--        path.join(DATA_PATH, FN_CAT_TEST),
+--        path.join(DATA_OUT, 'te.t7')
+--    )
+--    collectgarbage()
 end
 
 main()
