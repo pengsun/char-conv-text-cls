@@ -1,4 +1,4 @@
---- loader for text classification. Fix word vector sequence at tail
+--- word-vectors loader for text classification. Fix word vector sequence at tail
 -- xx: B, M, V
 -- yy: B
 require'torch'

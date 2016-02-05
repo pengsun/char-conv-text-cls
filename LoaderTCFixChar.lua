@@ -1,4 +1,4 @@
---- loader for text classification. Fix Character sequence
+--- char loader for text classification. Fix Character sequence
 require'torch'
 
 --- helpers

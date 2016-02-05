@@ -1,4 +1,4 @@
---- loader for text classification. Random Character sequence
+--- char loader for text classification. Random Character sequence
 require'torch'
 
 --- helpers
