@@ -10,7 +10,7 @@ local seqLength = 1000
 
 math.randomseed(os.time())
 local opt = {
-    dispWidth = 210,
+    dispWidth = 45,
 
     dataPath = 'data/imdb-fix.lua',
     dataMask = {tr=false, val=false, te=true},
@@ -20,7 +20,7 @@ local opt = {
     seqLength = seqLength,
     batSize = 1,
 
-    ibat = 24833, -- which data batch interested
+    ibat = 17676, -- which data batch interested
     iclass = nil, -- which class interested, use that from label y if nil value
 
     --    ibat = math.random(1,25000), -- which data batch interested

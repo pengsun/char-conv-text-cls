@@ -72,7 +72,6 @@ this.main = function(opt)
 
         -- init
         loader:reset_batch_pointer()
-        loader:evaluate()
         md:evaluate()
         local lossTotal = 0
         local numClasses = env.opt.numClasses

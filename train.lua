@@ -70,7 +70,7 @@ local function get_dft_opt()
 
   opt.gradClamp = 5
   opt.lrEpCheckpoint = make_lrEpCheckpoint()
-  opt.optimFun = optim.rmsprop
+
   opt.optimState = {
     learningRate = 2e-3, 
     alpha = 0.95, -- decay rate
@@ -145,7 +145,6 @@ this.main = function (opt)
   to_gpu()
 
   -- prepare loader & data
-  loaderTr:training() -- for batch order
   local nb = loaderTr:num_batches() -- rewind to ensure opt.batSize
   local maxIt = nb * opt.maxEp
   local begIt = env.i or 0
@@ -170,7 +169,6 @@ this.main = function (opt)
     local curBatSize
 
     local function eval_dataset(loader)
-      loader:evaluate()
       loader:reset_batch_pointer()
       local lossTotal = 0
 
@@ -257,6 +255,7 @@ this.main = function (opt)
     --local _, lst = opt.optimFun(feval, params, opt.optimState)
     local _, lst = optim.rmsprop(feval, params, opt.optimState)
     local loss = lst[1]
+    if opt.gpuId > 0 then cutorch.synchronize() end
     time = torch.toc(time)----------------------------------
 
     -- update
