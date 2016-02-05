@@ -54,7 +54,7 @@ this.main = function(opt)
     assert(opt.seqLength == env.opt.seqLength,
         string.format("opt.segLength (=%d) must be equal to that of the saved model", opt.seqLength)
     )
-    md = md_reset(md, opt)
+    md_reset(md, opt)
     print(md)
 
     print('[testing logic]')
@@ -130,6 +130,7 @@ this.main = function(opt)
     -- show info
     print('avg loss = ' .. lossAvg)
     print('accuracy = ' .. conf.totalValid)
+    print('error rate = ' .. 1 - conf.totalValid)
 
     return outputsAll, targetsAll
 end -- main

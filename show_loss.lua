@@ -43,13 +43,14 @@ local function get_it_tr_from_file(fn)
 end
 
 ---[[]]
+require'onehot-temp-conv'
 local paths = {
-    path.join('cv','imdb-randchar', 'tmp'),
-    path.join('cv','imdb-randchar', 'tmp2'),
+    path.join('cv','imdb-fixtail-word'),
+    path.join('cv','imdb-fixtail-word'),
 }
 local names = {
-    "seqLength887-HU190-cv7-cv5-cv3-fc-o_epoch15.00_lossval0.4645",
-    "seqLength887-HU190-cv7-cv5-cv3-fc-o_epoch18.00_lossval0.6805",
+    "M475-HU502-cp3max-o_epoch25.00_lossval0.2296",
+    "M475-HU502-cv2max3max-o_epoch20.00_lossval0.2388",
 }
 
 

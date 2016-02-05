@@ -1,24 +1,21 @@
 -- run test.lua
 require'pl.path'
 
-local envFn = [[
-seqLength887-HU1000-cv8max-o_epoch15.00_lossval0.3137.t7]]
-local envPath = 'cv/imdb-randchar'
+require'onehot-temp-conv'
+local envFn = [[M475-HU502-cp3max-o_epoch20.00_lossval0.2221.t7]]
+local envPath = 'cv/imdb-fixtail-word'
+local seqLength = 475
 
 local opt = {
-    dataPath = 'data/imdb-fix.lua',
+    dataPath = 'data/imdb-fixtail-word.lua',
     dataMask = {tr=false, val=false, te=true},
 
     envPath = path.join(envPath, envFn),
 
-    seqLength = 887,
+    seqLength = seqLength,
     --batSize = 7,
     batSize = 250,
 }
 
 local test = dofile('test.lua')
-local outputs, targets = test.main(opt)
-
--- write mis cls
-opt.fnMisCls = path.join(envPath, 'miscls-' .. envFn .. '.txt')
-test.save_miscls(outputs, targets, opt)
+test.main(opt)

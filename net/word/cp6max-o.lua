@@ -14,7 +14,7 @@ this.main = function(opt)
     local M = opt.seqLength or 291
     local HU = opt.HU or 190
 
-    local kH = 3
+    local kH = 6
 
     local md = nn.Sequential()
     -- B, M (,V)
