@@ -8,6 +8,7 @@ require'pl.tablex'
 require'xlua'
 
 require'OneHot'
+local misc = require'util.misc'
 
 local function init_env()
   local env = {
@@ -21,14 +22,20 @@ local function init_env()
 end
 
 local function setup_global(opt)
+  -- gpu
   if opt.gpuId > 0 then
     require('cutorch').setDevice(opt.gpuId)
   end
-  
+
+  -- random number seed
   torch.manualSeed(opt.seed or 123)
-  
-  if path.isdir(opt.envSavePath) then
-    path.mkdir(opt.envSavePath)
+
+  -- ensure environment saving path
+  if not path.isdir(opt.envSavePath) then
+    local ok, info = path.mkdir(opt.envSavePath)
+    if not ok then
+      error("cannot create env saving path " .. opt.envSavePath .. " " .. info)
+    end
   end
   
 end
@@ -209,8 +216,9 @@ this.main = function (opt)
       -- bprop
       local gradOutputs = cri:backward(outputs, targets)
       md:backward(inputs, gradOutputs)
-      
-      --gradParams:clamp(-opt.gradClamp, opt.gradClamp)
+
+      -- regularization
+      gradParams:clamp(-opt.gradClamp, opt.gradClamp)
       
       return loss, gradParams
     end
@@ -234,9 +242,13 @@ this.main = function (opt)
     end
 
     local function save_env(env)
+      -- remove intermediate data
+      misc.cleanup_model(env.md)
+
       local fn = string.format('%s_epoch%.2f_lossval%.4f.t7',
         opt.envSavePrefix, env.epoch, env.lossesVal[env.i])
       local ffn = path.join(opt.envSavePath, fn)
+
       print('saving to ' .. ffn)
       torch.save(ffn, env)
     end
