@@ -16,6 +16,7 @@ local function init_env()
     epoch = nil,
     lossesTr = {},
     lossesVal = {},
+    errVal = {},
     md = nil,
   }
   return env
@@ -163,6 +164,7 @@ this.main = function (opt)
   -- prepare loss
   local lossesTr = env.lossesTr or {}
   local lossesVal = env.lossesVal or {}
+  local errVal = env.errVal or {}
 
   -- prepare model
   md:training() -- for dropout
@@ -178,6 +180,8 @@ this.main = function (opt)
     local function eval_dataset(loader)
       loader:reset_batch_pointer()
       local lossTotal = 0
+      local numClasses = opt.numClasses or error('no opt.numClasses!')
+      local conf = optim.ConfusionMatrix(numClasses) -- confusion matrix
 
       print('evaluate on the dataset')
       local nb = loader:num_batches()
@@ -192,13 +196,19 @@ this.main = function (opt)
         -- update loss
         numEval = numEval + targets:numel()
         lossTotal = lossTotal + loss*targets:numel()
+        -- update error
+        conf:batchAdd(outputs, targets)
+
         xlua.progress(ibat, nb)
       end
       local lossAvg = lossTotal/numEval
       print('evaluation average loss = ' .. lossAvg)
 
+      conf:updateValids()
+      print('evaluation error rate = ' .. 1-conf.totalValid)
+
       md:training() -- restore
-      return lossAvg
+      return lossAvg, 1-conf.totalValid
     end
 
     local function feval(pp)
@@ -245,8 +255,8 @@ this.main = function (opt)
       -- remove intermediate data
       misc.cleanup_model(env.md)
 
-      local fn = string.format('%s_epoch%.2f_lossval%.4f.t7',
-        opt.envSavePrefix, env.epoch, env.lossesVal[env.i])
+      local fn = string.format('%s_epoch%.2f_lossval%.4f_errval%1.2f.t7',
+        opt.envSavePrefix, env.epoch, env.lossesVal[env.i], 100*env.errVal[env.i])
       local ffn = path.join(opt.envSavePath, fn)
 
       print('saving to ' .. ffn)
@@ -280,11 +290,11 @@ this.main = function (opt)
 
     -- evaluate (on validation set ?), update and save
     if i % opt.evalFreq == 0 then
-      lossesVal[i] = eval_dataset(loaderVal)
-      
+      lossesVal[i], errVal[i] = eval_dataset(loaderVal)
+
       save_env{opt = opt,
         i = i, epoch = epoch,
-        lossesTr = lossesTr, lossesVal = lossesVal,
+        lossesTr = lossesTr, lossesVal = lossesVal, errVal = errVal,
         md = md, cri = cri,
         md_reset = md_reset,
       }

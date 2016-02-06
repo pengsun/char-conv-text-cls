@@ -2,7 +2,7 @@
 require'pl.path'
 
 require'onehot-temp-conv'
-local envFn = [[M475-HU502-cp3max-o_epoch20.00_lossval0.2221.t7]]
+local envFn = [[M475-HU502-cv2max3max-o_epoch20.00_lossval0.2388.t7]]
 local envPath = 'cv/imdb-fixtail-word'
 local seqLength = 475
 
