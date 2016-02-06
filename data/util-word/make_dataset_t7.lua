@@ -3,13 +3,25 @@ require'pl.path'
 require'pl.stringx'
 require'pl.file'
 
-local DATA_PATH = '/home/ps/data/imdb'
-local DATA_OUT = path.join(DATA_PATH, 'word-t7')
-local FN_VOCAB = 'imdb_trn-30000.vocab'
-local FN_TOK_TRAIN = 'imdb-train.txt.tok'
-local FN_CAT_TRAIN = 'imdb-train.cat'
-local FN_TOK_TEST = 'imdb-test.txt.tok'
-local FN_CAT_TEST = 'imdb-test.cat'
+--- global config: imdb
+--local DATA_PATH = '/home/ps/data/imdb'
+--local DATA_OUT = path.join(DATA_PATH, 'word-t7')
+--local FN_VOCAB_FREQ = 'imdb_trn-30000.vocab'
+--local FN_TOK_TRAIN = 'imdb-train.txt.tok'
+--local FN_CAT_TRAIN = 'imdb-train.cat'
+--local FN_TOK_TEST = 'imdb-test.txt.tok'
+--local FN_CAT_TEST = 'imdb-test.cat'
+--local VOCAB_CAT = {pos=1, neg=2}
+
+--- global config: elec 25k
+local DATA_PATH = '/home/ps/data/elec'
+local DATA_OUT = path.join(DATA_PATH, 'tr25k-word-t7')
+local FN_VOCAB_FREQ = 'elec-25k-train-30000.vocab'
+local FN_TOK_TRAIN = 'elec-25k-train.txt.tok'
+local FN_CAT_TRAIN = 'elec-25k-train.cat'
+local FN_TOK_TEST = 'elec-test.txt.tok'
+local FN_CAT_TEST = 'elec-test.cat'
+local VOCAB_CAT = {['1']=1, ['2']=2}
 
 -- make vocabulary
 local function update_vocab(vocab, str)
@@ -34,7 +46,7 @@ local function read_vocab()
     local count = 1
 
     -- scan the file
-    local lines = stringx.splitlines( file.read( path.join(DATA_PATH,FN_VOCAB) ) )
+    local lines = stringx.splitlines( file.read( path.join(DATA_PATH, FN_VOCAB_FREQ) ) )
     for _, line in pairs(lines) do
         local items = stringx.split(line, "\t")
         local word = items[1]
@@ -85,10 +97,8 @@ local function str_to_y_tensor(str)
     local y = torch.LongTensor(#lines)
     for i = 1, y:numel() do
         local cat = lines[i]
-        if cat == "pos" then
-            y[i] = 2
-        elseif cat == "neg" then
-            y[i] = 1
+        if VOCAB_CAT[cat] then
+            y[i] = VOCAB_CAT[cat]
         else
             error('unknown ' .. cat .. 'at ' .. i)
         end
