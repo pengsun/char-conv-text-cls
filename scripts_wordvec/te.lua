@@ -2,7 +2,7 @@
 require'pl.path'
 
 local envFn = [[
-seqLength297-HU1000-cp7max-o_epoch12.00_lossval0.2593.t7]]
+seqLength297-HU60-cp3pl3times3max-o_epoch27.00_lossval0.2668.t7]]
 local envPath = 'cv/imdb-fixtailwv'
 local seqLength = 297
 

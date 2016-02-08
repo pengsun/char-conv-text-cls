@@ -25,10 +25,10 @@ local function make_lrEpCheckpoint_big()
   return r
 end
 
-local netname = 'cp3linmax-o'
+local netname = 'cp3pl3times3max-o'
 local batSize = 250
 local seqLength = 297
-local HU = 600
+local HU = 60
 
 local opt = {
   mdPath = path.join('net', 'wordvec', netname .. '.lua'),

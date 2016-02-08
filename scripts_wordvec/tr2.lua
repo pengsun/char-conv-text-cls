@@ -25,7 +25,7 @@ local function make_lrEpCheckpoint_big()
   return r
 end
 
-local netname = 'cp7max-o'
+local netname = 'cp3pl2times3max-o'
 local batSize = 250
 local seqLength = 297
 local HU = 1000
