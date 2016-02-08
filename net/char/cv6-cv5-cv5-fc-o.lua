@@ -14,7 +14,7 @@ this.main = function(opt)
     local M = opt.seqLength or 512
     local HU = opt.HU or 190
 
-    local kH1, kH2, kH3 = 6, 4, 2 -- conv kernel size
+    local kH1, kH2, kH3 = 6, 5, 5 -- conv kernel size
     local pool = 2
 
     local Md = math.floor( (M-kH1+1) / pool)
