@@ -2,48 +2,48 @@
 require'pl.path'
 
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 5e-4, 0.97
+  local baseRate, factor = 1e-3, 0.97
   local r = {}
   for i = 1, 10 do
     r[i] = baseRate
   end
-  for i = 11, 200 do
+  for i = 11, 40 do
     r[i] = r[i-1] * factor
   end
   return r
 end
 
-local netname = 'cv6-cv4-cv2-fc-o'
-local batSize = 250
-local seqLength = 1014
-local HU = 200
+local netname = 'cv3maxcv4max-o'
+local batSize = 125
+local seqLength = 475
+local HU = 500
 
-local trsize = 25*1000
+local trsize = 200*1000
 local itPerEp = math.floor(trsize/batSize)
-local printFreq = math.ceil( 0.11 * itPerEp )
-local evalFreq = 3*itPerEp
 
 local opt = {
-  mdPath = path.join('net', 'char', netname .. '.lua'),
+  mdPath = path.join('net', 'word', netname .. '.lua'),
 
-  dataPath = 'data/elec25k-fixtail-char.lua',
-  envSavePath = 'cv/elec25k-fixtail-char',
+  dataPath = 'data/elec200k-fixtail-word.lua',
+  envSavePath = 'cv/elec200k-fixtail-word',
 
   envSavePrefix = 'M' .. seqLength .. '-' ..
           'HU' .. HU .. '-' ..
           netname,
 
   seqLength = seqLength,
-  V = 68 + 1, -- vocab + oov(null)
+  V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   numClasses = 2,
 
   batSize = batSize,
-  maxEp = 200,
+  maxEp = 40,
 
-  paramInitBound = 0.02,
-  printFreq = printFreq,
-  evalFreq = evalFreq,
+  paramInitBound = 0.05,
+  printFreq = math.ceil( 0.061 * itPerEp ),
+  --printFreq = 1,
+  evalFreq = 1 * itPerEp, -- every #epoches
+
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 }
 

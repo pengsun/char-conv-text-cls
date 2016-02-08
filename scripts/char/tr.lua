@@ -2,7 +2,7 @@
 require'pl.path'
 
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 5e-4, 0.97
+  local baseRate, factor = 2e-3, 0.97
   local r = {}
   for i = 1, 10 do
     r[i] = baseRate
@@ -13,10 +13,10 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv6-cv4-cv2-fc-o'
+local netname = 'cv6-cv5-cv5-fc-o'
 local batSize = 250
 local seqLength = 1014
-local HU = 150
+local HU = 200
 
 local trsize = 25*1000
 local itPerEp = math.floor(trsize/batSize)
@@ -41,7 +41,7 @@ local opt = {
   batSize = batSize,
   maxEp = 200,
 
-  paramInitBound = 0.02,
+  paramInitBound = 0.05,
   printFreq = printFreq,
   evalFreq = evalFreq,
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
