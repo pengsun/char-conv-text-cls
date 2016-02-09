@@ -22,10 +22,11 @@ local printFreq = math.ceil( 0.061 * itPerEp )
 --local printFreq = 1
 local evalFreq = 1 * itPerEp -- every #epoches
 
+--require'mobdebug'.start()
 opt = {
     envContinuePath = path.join(
         'cv', 'elec200k-fixtail-word',
-        'M475-HU750-cv3maxcv4max-o_epoch1.00_lossval0.1895_errval7.46.t7'
+        'M475-HU750-cv3maxcv4max-o_epoch2.00_lossval0.1819_errval7.05.t7'
     ),
     envSavePath = path.join('cv', 'elec200k-fixtail-word'),
     maxEp = 40,
