@@ -16,10 +16,12 @@ end
 local netname = 'cv3maxcv4max-o'
 local batSize = 125
 local seqLength = 475
-local HU = 500
+local HU = 1000
 
 local trsize = 200*1000
 local itPerEp = math.floor(trsize/batSize)
+local printFreq = math.ceil( 0.061 * itPerEp )
+local evalFreq = 1 * itPerEp -- every #epoches
 
 local opt = {
   mdPath = path.join('net', 'word', netname .. '.lua'),
@@ -40,9 +42,8 @@ local opt = {
   maxEp = 40,
 
   paramInitBound = 0.05,
-  printFreq = math.ceil( 0.061 * itPerEp ),
-  --printFreq = 1,
-  evalFreq = 1 * itPerEp, -- every #epoches
+  printFreq = printFreq,
+  evalFreq = evalFreq, -- every #epoches
 
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 }

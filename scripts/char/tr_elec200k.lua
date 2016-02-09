@@ -7,15 +7,15 @@ local function make_lrEpCheckpoint_small()
   for i = 1, 10 do
     r[i] = baseRate
   end
-  for i = 11, 200 do
+  for i = 11, 80 do
     r[i] = r[i-1] * factor
   end
   return r
 end
 
-local netname = 'cv6-cv4-cv2-fc-o'
+local netname = 'cv6pl2-cv5pl2-cv5max-o'
 local batSize = 250
-local seqLength = 1014
+local seqLength = 2500
 local HU = 200
 
 local trsize = 200*1000
@@ -39,7 +39,7 @@ local opt = {
   numClasses = 2,
 
   batSize = batSize,
-  maxEp = 200,
+  maxEp = 80,
 
   paramInitBound = 0.05,
   printFreq = printFreq,
