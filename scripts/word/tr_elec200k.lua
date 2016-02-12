@@ -2,7 +2,7 @@
 require'pl.path'
 
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 1e-3, 0.97
+  local baseRate, factor = 2e-3, 0.97
   local r = {}
   for i = 1, 10 do
     r[i] = baseRate
@@ -14,9 +14,9 @@ local function make_lrEpCheckpoint_small()
 end
 
 local netname = 'cv3maxcv4max-o'
-local batSize = 50
+local batSize = 20
 local seqLength = 475
-local HU = 750
+local HU = 1000
 
 local trsize = 200*1000
 local itPerEp = math.floor(trsize/batSize)

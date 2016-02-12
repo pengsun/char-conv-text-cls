@@ -3,11 +3,28 @@ require'pl.stringx'
 require'pl.operator'
 
 --- global config: elec
-local FN_WORDS = '/home/ps/data/elec/elec-25k-train.txt.tok'
-local FN_VOCAB_FREQ = '/home/ps/data/elec/elec-25k-train.vocab'
+--local FN_WORDS = '/home/ps/data/elec/elec-25k-train.txt.tok'
+--local FN_VOCAB_FREQ = '/home/ps/data/elec/elec-25k-train.vocab'
+--
+--local VOCAB_TRUNCATE_SIZE = 30000
+--local FN_VOCAB_FREQ_TRUNCATE = '/home/ps/data/elec/elec-25k-train-30000.vocab'
+
+
+--- global config: elec25k, deepml
+--local FN_WORDS = '/mnt/data/datasets/Text/elec/elec-25k-train.txt.tok'
+--local FN_VOCAB_FREQ = '/mnt/data/datasets/Text/elec/elec-25k-train.vocab'
+--
+--local VOCAB_TRUNCATE_SIZE = 30000
+--local FN_VOCAB_FREQ_TRUNCATE = '/mnt/data/datasets/Text/elec/elec-25k-train-30000.vocab'
+
+
+--- global config: elec100k, deepml
+local FN_WORDS = '/mnt/data/datasets/Text/elec/elec-200k-train.txt.tok'
+local FN_VOCAB_FREQ = '/mnt/data/datasets/Text/elec/elec-200k-train.vocab'
 
 local VOCAB_TRUNCATE_SIZE = 30000
-local FN_VOCAB_FREQ_TRUNCATE = '/home/ps/data/elec/elec-25k-train-30000.vocab'
+local FN_VOCAB_FREQ_TRUNCATE = '/mnt/data/datasets/Text/elec/elec-200k-train-30000.vocab'
+
 
 --- helpers
 local function update_vocab(words, v, vc)
@@ -64,9 +81,10 @@ local function main()
     -- update vocab for each line in file
     print('extracting vocab from ' .. FN_WORDS)
     local lines = stringx.splitlines( file.read(FN_WORDS) )
-    for _, line in ipairs(lines) do
+    for i, line in ipairs(lines) do
         local words = stringx.split(line, ' ')
         update_vocab(words, vocab, vocabFreq)
+        xlua.progress(i, #lines)
     end
     print('#vocab = ' .. tablex.size(vocab))
 

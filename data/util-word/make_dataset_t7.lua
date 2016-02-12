@@ -13,12 +13,22 @@ require'pl.file'
 --local FN_CAT_TEST = 'imdb-test.cat'
 --local VOCAB_CAT = {pos=1, neg=2}
 
---- global config: elec 25k
-local DATA_PATH = '/home/ps/data/elec'
-local DATA_OUT = path.join(DATA_PATH, 'tr25k-word-t7')
-local FN_VOCAB_FREQ = 'elec-25k-train-30000.vocab'
-local FN_TOK_TRAIN = 'elec-25k-train.txt.tok'
-local FN_CAT_TRAIN = 'elec-25k-train.cat'
+--- global config: elec 25k, deepml
+--local DATA_PATH = '/home/ps/data/elec'
+--local DATA_OUT = path.join(DATA_PATH, 'tr25k-word-t7')
+--local FN_VOCAB_FREQ = 'elec-25k-train-30000.vocab'
+--local FN_TOK_TRAIN = 'elec-25k-train.txt.tok'
+--local FN_CAT_TRAIN = 'elec-25k-train.cat'
+--local FN_TOK_TEST = 'elec-test.txt.tok'
+--local FN_CAT_TEST = 'elec-test.cat'
+--local VOCAB_CAT = {['1']=1, ['2']=2}
+
+--- global config: elec 200k, deepml
+local DATA_PATH = '/mnt/data/datasets/Text/elec'
+local DATA_OUT = path.join(DATA_PATH, 'tr200k-word-t7')
+local FN_VOCAB_FREQ = 'elec-200k-train-30000.vocab'
+local FN_TOK_TRAIN = 'elec-200k-train.txt.tok'
+local FN_CAT_TRAIN = 'elec-200k-train.cat'
 local FN_TOK_TEST = 'elec-test.txt.tok'
 local FN_CAT_TEST = 'elec-test.cat'
 local VOCAB_CAT = {['1']=1, ['2']=2}
