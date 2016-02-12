@@ -3,7 +3,7 @@ require'pl.path'
 require'onehot-temp-conv'
 
 local function make_lrEpCheckpoint_small()
-    local baseRate, factor = 1e-3, 0.97
+    local baseRate, factor = 2e-3, 0.97
     local r = {}
     for i = 1, 10 do
         r[i] = baseRate

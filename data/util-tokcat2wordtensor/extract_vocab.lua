@@ -19,11 +19,17 @@ require'pl.operator'
 
 
 --- global config: elec100k, deepml
-local FN_WORDS = '/mnt/data/datasets/Text/elec/elec-200k-train.txt.tok'
-local FN_VOCAB_FREQ = '/mnt/data/datasets/Text/elec/elec-200k-train.vocab'
+--local FN_WORDS = '/mnt/data/datasets/Text/elec/elec-200k-train.txt.tok'
+--local VOCAB_TRUNCATE_SIZE = 30000
+--local FN_VOCAB_FREQ = '/mnt/data/datasets/Text/elec/elec-200k-train.vocab'
+--local FN_VOCAB_FREQ_TRUNCATE = '/mnt/data/datasets/Text/elec/elec-200k-train-30000.vocab'
 
+
+--- global config: dbpedia
+local FN_WORDS = '/home/ps/data/dbpedia/tok-cat/train.txt.tok'
 local VOCAB_TRUNCATE_SIZE = 30000
-local FN_VOCAB_FREQ_TRUNCATE = '/mnt/data/datasets/Text/elec/elec-200k-train-30000.vocab'
+local FN_VOCAB_FREQ = '/home/ps/data/dbpedia/tok-cat/train.vocab'
+local FN_VOCAB_FREQ_TRUNCATE = '/home/ps/data/dbpedia/tok-cat/train-30000.vocab'
 
 
 --- helpers
