@@ -15,41 +15,47 @@ local dataPathWordT7 = path.join(dataPath, 'word-t7')
 ut.ensure_path(dataPathTokCat)
 ut.ensure_path(dataPathWordT7)
 
----
-print'==> [csv to text and category: .csv to .txt & .cat]'
---require('util.data.csv2txtcat').main{ -- train
---    -- input
---    path_csv = dataPath,
---    fn_csv = 'train.csv',
---    -- output
---    path_txt_cat = dataPathTokCat,
---    fn_txt = 'train.txt',
---    fn_cat = 'train.cat',
---}
---require('util.data.csv2txtcat').main{ -- test
---    -- input
---    path_csv = dataPath,
---    fn_csv = 'test.csv',
---    -- output
---    path_txt_cat = dataPathTokCat,
---    fn_txt = 'test.txt',
---    fn_cat = 'test.cat',
---}
 
----
+print'==> [csv to text and category: .csv to .txt & .cat]'
+local fun_get_cat = function (items) return items[1] end -- CSV entry 1
+local fun_get_txt = function (items) return items[3] end -- CSV entry 3
+require('util.data.csv2txtcat').main{ -- train
+    -- input
+    path_csv = dataPath,
+    fn_csv = 'train.csv',
+    fun_get_cat = fun_get_cat,
+    fun_get_txt = fun_get_txt,
+    -- output
+    path_txt_cat = dataPathTokCat,
+    fn_txt = 'train.txt',
+    fn_cat = 'train.cat',
+}
+require('util.data.csv2txtcat').main{ -- test
+    -- input
+    path_csv = dataPath,
+    fn_csv = 'test.csv',
+    fun_get_cat = fun_get_cat,
+    fun_get_txt = fun_get_txt,
+    -- output
+    path_txt_cat = dataPathTokCat,
+    fn_txt = 'test.txt',
+    fn_cat = 'test.cat',
+}
+
+
 print'==> [tokenize: .txt to .txt.tok]'
---require'util.data.txt2tok'.main{ -- train
---    -- input
---    path_data = dataPathTokCat,
---    fn_txt = 'train.txt',
---}
+require'util.data.txt2tok'.main{ -- train
+    -- input
+    path_data = dataPathTokCat,
+    fn_txt = 'train.txt',
+}
 require'util.data.txt2tok'.main{ -- test
     -- input
     path_data = dataPathTokCat,
     fn_txt = 'test.txt',
 }
 
----
+
 print'==> [extract vocab: .txt.tok to .vocab]'
 require'util.data.extract_vocab'.main{
     -- input
@@ -60,7 +66,7 @@ require'util.data.extract_vocab'.main{
     fn_vocab_freq_truncate = path.join(dataPathTokCat, 'train-' .. vocab_truncate_size .. '.vocab'),
 }
 
----
+
 print'==> [converting to tensors: .txt.tok & .cat to .t7]'
 local get_cat = function ()
     local cat = {}

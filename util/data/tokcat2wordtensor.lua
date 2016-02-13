@@ -72,22 +72,19 @@ local function str_to_x_tabletensor(str, vocab)
     return x, numoov
 end
 
-local function str_to_y_tensor(str)
+local function str_to_y_tensor(str, vocabCat)
     local lines = stringx.splitlines(str)
     local y = torch.LongTensor(#lines)
     for i = 1, y:numel() do
         local cat = lines[i]
-        if VOCAB_CAT[cat] then
-            y[i] = VOCAB_CAT[cat]
-        else
-            error('unknown ' .. cat .. 'at ' .. i)
-        end
+        y[i] = assert(vocabCat[cat],
+            'unknown ' .. cat .. 'at ' .. i)
     end
 
     return y
 end
 
-local function make_t7(fnTok, vocab, fnCat, fnOut)
+local function make_t7(fnTok, vocab, fnCat, vocabCat, fnOut)
     print('making t7 dataset...')
 
     print('reading tokens from ' .. fnTok)
@@ -99,15 +96,17 @@ local function make_t7(fnTok, vocab, fnCat, fnOut)
     print('reading cat from ' .. fnCat)
     local stry = file.read(fnCat)
     print('converting...')
-    local y = str_to_y_tensor(stry)
+    local y = str_to_y_tensor(stry, vocabCat)
 
     print('saving to ' .. fnOut)
     torch.save(fnOut, {x=x, y=y})
 end
 
-local function main()
+---
+local this = {}
+this.main = function(opt)
     -- default/examplar opt
-    local get_cat = function ()
+    local get_vocab_cat = function ()
         local cat = {}
         for i = 1, 14 do cat[tostring(i)] = i end
         return cat
@@ -122,7 +121,7 @@ local function main()
         fn_cat_train = 'tok-cat/train.cat',
         fn_tok_test = 'tok-cat/test.txt.tok',
         fn_cat_test = 'tok-cat/test.cat',
-        vocab_cat = get_cat(),
+        vocab_cat = get_vocab_cat(),
     }
 
     -- read and save vocab
@@ -134,15 +133,15 @@ local function main()
 
     -- make tr
     make_t7(path.join(opt.data_path, opt.fn_tok_train), vocab,
-        path.join(opt.data_path, opt.fn_cat_train),
+        path.join(opt.data_path, opt.fn_cat_train), opt.vocab_cat,
         path.join(opt.data_out, 'tr.t7')
     )
 
     -- make te
     make_t7(path.join(opt.data_path, opt.fn_tok_test), vocab,
-        path.join(opt.data_path, opt.fn_cat_test),
+        path.join(opt.data_path, opt.fn_cat_test), opt.vocab_cat,
         path.join(opt.data_out, 'te.t7')
     )
 end
 
-main()
+return this

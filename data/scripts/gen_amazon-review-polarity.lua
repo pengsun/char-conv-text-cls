@@ -2,11 +2,11 @@ require'pl.path'
 local ut = require'util.misc'
 
 --- common opt
-local numClasses = 14
+local numClasses = 2 -- positive/negative
 local vocab_truncate_size = 30000 -- vocabulary control
 
-local dataPath = '/mnt/data/datasets/Text/dbpedia' -- deepml
---local dataPath = '/home/ps/data/dbpedia' -- local
+local dataPath = '/mnt/data/datasets/Text/amazon-review-polarity' -- deepml
+--local dataPath = '/home/ps/data/amazon-review-polarity' -- local
 
 local dataPathTokCat = path.join(dataPath, 'tok-cat')
 local dataPathWordT7 = path.join(dataPath, 'word-t7')
@@ -68,7 +68,7 @@ require'util.data.extract_vocab'.main{
 
 
 print'==> [converting to tensors: .txt.tok & .cat to .t7]'
-local get_vocab_cat = function ()
+local get_cat = function ()
     local cat = {}
     for i = 1, numClasses do cat[tostring(i)] = i end
     return cat
@@ -81,7 +81,7 @@ require'util.data.tokcat2wordtensor'.main{
     fn_cat_train = 'train.cat',
     fn_tok_test = 'test.txt.tok',
     fn_cat_test = 'test.cat',
-    vocab_cat = get_vocab_cat(),
+    vocab_cat = get_cat(),
     -- output
     data_out = dataPathWordT7,
 }

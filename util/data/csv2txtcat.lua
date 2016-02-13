@@ -47,13 +47,11 @@ local function parse_csv_line (line,sep)
 end
 
 -- helper: make dataset
-local function make_txt_cat(fnCSV, fnTxt, fnCat)
+local function make_txt_cat(fnCSV, gettxt, getcat, fnTxt, fnCat)
     local sep = "," -- seperated by comma
-    local iCat = 1 -- CSV column 1: category
-    local iTok = 3 -- CSV column 3: tokens
 
     local fCSV = assert(io.open(fnCSV, "r"), "cannot open " .. fnCSV)
-    local fTok = assert(io.open(fnTxt, "w"), "cannot open " .. fnTxt)
+    local fTxt = assert(io.open(fnTxt, "w"), "cannot open " .. fnTxt)
     local fCat = assert(io.open(fnCat, "w"), "cannot open " .. fnCat)
 
     -- processing line by line
@@ -66,20 +64,20 @@ local function make_txt_cat(fnCSV, fnTxt, fnCat)
         end
 
         local items = parse_csv_line(line, sep)
-        assert(#items==3, fnCSV .. ": corrupted line: " .. n)
+        assert(#items>=2, fnCSV .. ": corrupted line: " .. n)
 
         -- write line: texts
-        local toks = items[iTok]
-        fTok:write(toks .. "\n")
+        local toks = gettxt(items)
+        fTxt:write(toks .. "\n")
 
         -- write line: the category
-        local cat = items[iCat]
+        local cat = getcat(items)
         fCat:write(cat .. "\n")
     end
     print('\ndone. #lines processed: ' .. n .. "\n")
 
     fCSV:close()
-    fTok:close()
+    fTxt:close()
     fCat:close()
 end
 
@@ -89,10 +87,14 @@ local this = {}
 this.main = function(opt)
 
     --- default/examplar option
+    local fun_get_txt = function(items) return items[3] end
+    local fun_get_cat = function(items) return items[1] end
     local opt = opt or {
         -- input
         path_csv = '/mnt/data/datasets/Text/dbpedia',
         fn_csv = 'test.csv',
+        fun_get_txt = fun_get_txt,
+        fun_get_cat = fun_get_cat,
         -- output
         path_txt_cat = '/mnt/data/datasets/Text/dbpedia/tok-cat',
         fn_txt = 'test.txt',
@@ -105,7 +107,8 @@ this.main = function(opt)
     print('input CSV: ' .. fnCSV)
     print('saving tokens to: ' .. fnTxt)
     print('saving category to: ' .. fnCat)
-    make_txt_cat(fnCSV, fnTxt,fnCat)
+    make_txt_cat(fnCSV, opt.fun_get_txt, opt.fun_get_cat,
+        fnTxt,fnCat)
 end
 
 return this
