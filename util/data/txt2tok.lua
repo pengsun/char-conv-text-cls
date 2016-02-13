@@ -3,23 +3,15 @@ require'pl.path'
 require'pl.stringx'
 require'pl.file'
 
---- global config: pl script and registerd-token
+--- internal config: pl script and registerd-token
 local FN_REGISTER = path.join(
-    paths.cwd(), 'data', 'util-txt2tok',
+    'util', 'data',
     'registered-tokens.txt'
 )
 local PL_SCRIPT = path.join(
-    paths.cwd(), 'data', 'util-txt2tok',
+    'util', 'data',
     'to_tokens.pl'
 )
-
---- global config: dbpedia train
---local PATH_DATA = '/home/ps/data/dbpedia/tok-cat'
---local FN_TXT = 'train.txt'
-
---- global config: dbpedia train, deepml
-local PATH_DATA = '/mnt/data/datasets/Text/dbpedia/tok-cat'
-local FN_TXT = 'test.txt'
 
 -- make dataset
 local function make_tok(fnTxt)
@@ -32,12 +24,23 @@ local function make_tok(fnTxt)
     print('running command:')
     print(cmd)
     os.execute(cmd)
+    print("\n")
 end
 
-local function main()
-    local fnTxt = path.join(PATH_DATA, FN_TXT)
+--
+local this = {}
+
+this.main = function(opt)
+    --- default/examplar option
+    local opt = opt or {
+        -- input
+        path_data = '/mnt/data/datasets/Text/dbpedia/tok-cat',
+        fn_txt = 'test.txt',
+    }
+
+    local fnTxt = path.join(opt.path_data, opt.fn_txt)
     print('input txt: ' .. fnTxt)
     make_tok(fnTxt)
 end
 
-main()
+return this

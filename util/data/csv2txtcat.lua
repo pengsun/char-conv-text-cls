@@ -1,38 +1,9 @@
---- make imdb dataset, use pre-defined lower-case char vocab
+--- CSV to text and category
 require'pl.path'
 require'pl.stringx'
 require'pl.file'
 
---- global config: dbpedia train
---local PATH_CSV = '/home/ps/data/dbpedia'
---local FN_CSV = 'train.csv'
---local PATH_TXT_CAT = '/home/ps/data/dbpedia/tok-cat'
---local FN_TXT = 'train.txt'
---local FN_CAT = 'train.cat'
-
---- global config: dbpedia test
---local PATH_CSV = '/home/ps/data/dbpedia'
---local FN_CSV = 'test.csv'
---local PATH_TXT_CAT = '/home/ps/data/dbpedia/tok-cat'
---local FN_TXT = 'test.txt'
---local FN_CAT = 'test.cat'
-
---- global config: dbpedia train deepml
---local PATH_CSV = '/mnt/data/datasets/Text/dbpedia'
---local FN_CSV = 'train.csv'
---local PATH_TXT_CAT = '/mnt/data/datasets/Text/dbpedia/tok-cat'
---local FN_TXT = 'train.txt'
---local FN_CAT = 'train.cat'
-
---- global config: dbpedia test deepml
-local PATH_CSV = '/mnt/data/datasets/Text/dbpedia'
-local FN_CSV = 'test.csv'
-local PATH_TXT_CAT = '/mnt/data/datasets/Text/dbpedia/tok-cat'
-local FN_TXT = 'test.txt'
-local FN_CAT = 'test.cat'
-
-
---- parse CSV line
+-- helper: parse CSV line
 -- from: Zhang Xiang's Crepe
 -- Reference: http://lua-users.org/wiki/LuaCsv
 local function parse_csv_line (line,sep)
@@ -75,7 +46,7 @@ local function parse_csv_line (line,sep)
     return res
 end
 
--- make dataset
+-- helper: make dataset
 local function make_txt_cat(fnCSV, fnTxt, fnCat)
     local sep = "," -- seperated by comma
     local iCat = 1 -- CSV column 1: category
@@ -94,7 +65,7 @@ local function make_txt_cat(fnCSV, fnTxt, fnCat)
             io.flush()
         end
 
-        local items = parse_csv_line(line, ",")
+        local items = parse_csv_line(line, sep)
         assert(#items==3, fnCSV .. ": corrupted line: " .. n)
 
         -- write line: texts
@@ -112,14 +83,29 @@ local function make_txt_cat(fnCSV, fnTxt, fnCat)
     fCat:close()
 end
 
-local function main()
-    local fnCSV = path.join(PATH_CSV, FN_CSV)
-    local fnTxt = path.join(PATH_TXT_CAT, FN_TXT)
-    local fnCat = path.join(PATH_TXT_CAT, FN_CAT)
+-- interface
+local this = {}
+
+this.main = function(opt)
+
+    --- default/examplar option
+    local opt = opt or {
+        -- input
+        path_csv = '/mnt/data/datasets/Text/dbpedia',
+        fn_csv = 'test.csv',
+        -- output
+        path_txt_cat = '/mnt/data/datasets/Text/dbpedia/tok-cat',
+        fn_txt = 'test.txt',
+        fn_cat = 'test.cat',
+    }
+
+    local fnCSV = path.join(opt.path_csv, opt.fn_csv)
+    local fnTxt = path.join(opt.path_txt_cat, opt.fn_txt)
+    local fnCat = path.join(opt.path_txt_cat, opt.fn_cat)
     print('input CSV: ' .. fnCSV)
     print('saving tokens to: ' .. fnTxt)
     print('saving category to: ' .. fnCat)
     make_txt_cat(fnCSV, fnTxt,fnCat)
 end
 
-main()
+return this

@@ -1,7 +1,15 @@
 --- miscellaneous utility functions
 local this = {}
 
--- Resize the output, gradInput, etc temporary tensors to zero (so that the
+--- path
+this.ensure_path = function (p)
+    if not path.isdir(p) then
+        print('creating path ' .. p)
+        assert(path.mkdir(p), 'creation failed')
+    end
+end
+
+--- Resize the output, gradInput, etc temporary tensors to zero (so that the
 -- on disk size is smaller)
 -- code by jonathantompson, from https://github.com/torch/nn/issues/112
 local function cleanup_model (node)
@@ -40,7 +48,7 @@ local function cleanup_model (node)
 end
 this.cleanup_model = cleanup_model
 
--- util global functions
+--- util global functions
 this.print_tensor_asrow = function(ten)
     local t = ten:reshape(ten:numel())
     for i = 1, t:numel() do
@@ -50,7 +58,7 @@ this.print_tensor_asrow = function(ten)
     io.flush()
 end
 
--- vocab
+--- vocab
 this.str2tensor = function(str, vocab)
     error('not implemented.')
 --    local ten = torch.Tensor(1, #str)

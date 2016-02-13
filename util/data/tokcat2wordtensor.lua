@@ -3,66 +3,6 @@ require'pl.path'
 require'pl.stringx'
 require'pl.file'
 
---- global config: imdb
---local DATA_PATH = '/home/ps/data/imdb'
---local DATA_OUT = path.join(DATA_PATH, 'word-t7')
---local FN_VOCAB_FREQ = 'imdb_trn-30000.vocab'
---local FN_TOK_TRAIN = 'imdb-train.txt.tok'
---local FN_CAT_TRAIN = 'imdb-train.cat'
---local FN_TOK_TEST = 'imdb-test.txt.tok'
---local FN_CAT_TEST = 'imdb-test.cat'
---local VOCAB_CAT = {pos=1, neg=2}
-
---- global config: elec 25k, deepml
---local DATA_PATH = '/home/ps/data/elec'
---local DATA_OUT = path.join(DATA_PATH, 'tr25k-word-t7')
---local FN_VOCAB_FREQ = 'elec-25k-train-30000.vocab'
---local FN_TOK_TRAIN = 'elec-25k-train.txt.tok'
---local FN_CAT_TRAIN = 'elec-25k-train.cat'
---local FN_TOK_TEST = 'elec-test.txt.tok'
---local FN_CAT_TEST = 'elec-test.cat'
---local VOCAB_CAT = {['1']=1, ['2']=2}
-
---- global config: elec 200k, deepml
---local DATA_PATH = '/mnt/data/datasets/Text/elec'
---local DATA_OUT = path.join(DATA_PATH, 'tr200k-word-t7')
---local FN_VOCAB_FREQ = 'elec-200k-train-30000.vocab'
---local FN_TOK_TRAIN = 'elec-200k-train.txt.tok'
---local FN_CAT_TRAIN = 'elec-200k-train.cat'
---local FN_TOK_TEST = 'elec-test.txt.tok'
---local FN_CAT_TEST = 'elec-test.cat'
---local VOCAB_CAT = {['1']=1, ['2']=2}
-
---- global config: dbpedia
---local DATA_PATH = '/home/ps/data/dbpedia'
---local DATA_OUT = path.join(DATA_PATH, 'word-t7')
---local FN_VOCAB_FREQ = 'tok-cat/train-30000.vocab'
---local FN_TOK_TRAIN = 'tok-cat/train.txt.tok'
---local FN_CAT_TRAIN = 'tok-cat/train.cat'
---local FN_TOK_TEST = 'tok-cat/test.txt.tok'
---local FN_CAT_TEST = 'tok-cat/test.cat'
---local tmp = function ()
---    local cat = {}
---    for i = 1, 14 do cat[tostring(i)] = i end
---    return cat
---end
---local VOCAB_CAT = tmp()
-
---- global config: dbpedia
-local DATA_PATH = '/mnt/data/datasets/Text/dbpedia'
-local DATA_OUT = path.join(DATA_PATH, 'word-t7')
-local FN_VOCAB_FREQ = 'tok-cat/train-30000.vocab'
-local FN_TOK_TRAIN = 'tok-cat/train.txt.tok'
-local FN_CAT_TRAIN = 'tok-cat/train.cat'
-local FN_TOK_TEST = 'tok-cat/test.txt.tok'
-local FN_CAT_TEST = 'tok-cat/test.cat'
-local tmp = function ()
-    local cat = {}
-    for i = 1, 14 do cat[tostring(i)] = i end
-    return cat
-end
-local VOCAB_CAT = tmp()
-
 -- make vocabulary
 local function update_vocab(vocab, str)
     local lines = stringx.splitlines(str)
@@ -77,7 +17,7 @@ local function update_vocab(vocab, str)
     end
 end
 
-local function read_vocab()
+local function read_vocab(opt)
     local vocab = {}
 
     -- unknown word: always 1
@@ -86,7 +26,7 @@ local function read_vocab()
     local count = 1
 
     -- scan the file
-    local lines = stringx.splitlines( file.read( path.join(DATA_PATH, FN_VOCAB_FREQ) ) )
+    local lines = stringx.splitlines( file.read( path.join(opt.data_path, opt.fn_vocab_freq) ) )
     for _, line in pairs(lines) do
         local items = stringx.split(line, "\t")
         local word = items[1]
@@ -166,23 +106,42 @@ local function make_t7(fnTok, vocab, fnCat, fnOut)
 end
 
 local function main()
+    -- default/examplar opt
+    local get_cat = function ()
+        local cat = {}
+        for i = 1, 14 do cat[tostring(i)] = i end
+        return cat
+    end
+    local opt = opt or {
+        -- input
+        data_path = '/mnt/data/datasets/Text/dbpedia',
+        fn_vocab_freq = 'tok-cat/train-30000.vocab',
+        -- output
+        data_out = path.join('/mnt/data/datasets/Text/dbpedia', 'word-t7'),
+        fn_tok_train = 'tok-cat/train.txt.tok',
+        fn_cat_train = 'tok-cat/train.cat',
+        fn_tok_test = 'tok-cat/test.txt.tok',
+        fn_cat_test = 'tok-cat/test.cat',
+        vocab_cat = get_cat(),
+    }
+
     -- read and save vocab
-    local vocab = read_vocab()
-    local fnVocab = path.join(DATA_OUT, 'vocab.t7')
+    local vocab = read_vocab(opt)
+    local fnVocab = path.join(opt.data_out, 'vocab.t7')
     print('vocab size = ' .. tablex.size(vocab))
     print('saving vocab to ' .. fnVocab)
     torch.save(fnVocab, vocab)
 
     -- make tr
-    make_t7(path.join(DATA_PATH, FN_TOK_TRAIN), vocab,
-        path.join(DATA_PATH, FN_CAT_TRAIN),
-        path.join(DATA_OUT, 'tr.t7')
+    make_t7(path.join(opt.data_path, opt.fn_tok_train), vocab,
+        path.join(opt.data_path, opt.fn_cat_train),
+        path.join(opt.data_out, 'tr.t7')
     )
 
     -- make te
-    make_t7(path.join(DATA_PATH, FN_TOK_TEST), vocab,
-        path.join(DATA_PATH, FN_CAT_TEST),
-        path.join(DATA_OUT, 'te.t7')
+    make_t7(path.join(opt.data_path, opt.fn_tok_test), vocab,
+        path.join(opt.data_path, opt.fn_cat_test),
+        path.join(opt.data_out, 'te.t7')
     )
 end
 
