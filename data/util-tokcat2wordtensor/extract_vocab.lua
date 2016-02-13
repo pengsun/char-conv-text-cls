@@ -26,10 +26,16 @@ require'pl.operator'
 
 
 --- global config: dbpedia
-local FN_WORDS = '/home/ps/data/dbpedia/tok-cat/train.txt.tok'
+--local FN_WORDS = '/home/ps/data/dbpedia/tok-cat/train.txt.tok'
+--local VOCAB_TRUNCATE_SIZE = 30000
+--local FN_VOCAB_FREQ = '/home/ps/data/dbpedia/tok-cat/train.vocab'
+--local FN_VOCAB_FREQ_TRUNCATE = '/home/ps/data/dbpedia/tok-cat/train-30000.vocab'
+
+---
+local FN_WORDS = '/home/ps/data/dbpedia/tok-cat/test.txt.tok'
 local VOCAB_TRUNCATE_SIZE = 30000
-local FN_VOCAB_FREQ = '/home/ps/data/dbpedia/tok-cat/train.vocab'
-local FN_VOCAB_FREQ_TRUNCATE = '/home/ps/data/dbpedia/tok-cat/train-30000.vocab'
+local FN_VOCAB_FREQ = '/home/ps/data/dbpedia/tok-cat/test.vocab'
+local FN_VOCAB_FREQ_TRUNCATE = '/home/ps/data/dbpedia/tok-cat/test-30000.vocab'
 
 
 --- helpers
@@ -37,7 +43,9 @@ local function update_vocab(words, v, vc)
     local v = v or error('no vocab')
     local vc = vc or error('no vocab error')
 
-    for _, word in pairs(words) do
+    for i, word in pairs(words) do
+        --if i == 9 then require'mobdebug'.start() end
+
         -- lower case!
         word = string.lower(word)
 
@@ -65,6 +73,8 @@ local function truncate_vocabFreq(vocabFreq, sz)
     local vt, count = {}, 0
     for word, freq in tablex.sortv(vocabFreq, '>') do
         count = count + 1
+
+        --if count == 2053 then require'mobdebug'.start() end
         if count > sz then break end
         vt[word] = freq
     end
@@ -74,8 +84,7 @@ end
 local function save_vocabFreq_txt(fn, vocabFreq)
     local f = assert(io.open(fn, 'w'))
     for word, freq in tablex.sortv(vocabFreq, '>') do
-        local str = ("%s\t%s"):format(word, freq)
-        f:write(str .. "\n")
+        f:write(word .. "\t" .. freq .. "\n")
     end
     f:close()
 end
@@ -88,6 +97,8 @@ local function main()
     print('extracting vocab from ' .. FN_WORDS)
     local lines = stringx.splitlines( file.read(FN_WORDS) )
     for i, line in ipairs(lines) do
+        if i == 11696 then require'mobdebug'.start() end
+
         local words = stringx.split(line, ' ')
         update_vocab(words, vocab, vocabFreq)
         xlua.progress(i, #lines)
