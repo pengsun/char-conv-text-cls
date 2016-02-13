@@ -2,11 +2,11 @@ require'pl.path'
 local ut = require'util.misc'
 
 --- common opt
-local numClasses = 14
+local numClasses = 5
 local vocab_truncate_size = 30000 -- vocabulary control
 
---local dataPath = '/mnt/data/datasets/Text/dbpedia' -- deepml
-local dataPath = '/home/ps/data/dbpedia' -- local
+local dataPath = '/mnt/data/datasets/Text/amazon-review-full' -- deepml
+--local dataPath = '/home/ps/data/amazon-review-full' -- local
 
 local dataPathTokCat = path.join(dataPath, 'tok-cat')
 local dataPathWordT7 = path.join(dataPath, 'word-t7')
@@ -17,32 +17,32 @@ ut.ensure_path(dataPathWordT7)
 
 ---
 print'==> [csv to text and category: .csv to .txt & .cat]'
-require('util.data.csv2txtcat').main{ -- train
-    -- input
-    path_csv = dataPath,
-    fn_csv = 'train.csv',
-    -- output
-    path_txt_cat = dataPathTokCat,
-    fn_txt = 'train.txt',
-    fn_cat = 'train.cat',
-}
-require('util.data.csv2txtcat').main{ -- test
-    -- input
-    path_csv = dataPath,
-    fn_csv = 'test.csv',
-    -- output
-    path_txt_cat = dataPathTokCat,
-    fn_txt = 'test.txt',
-    fn_cat = 'test.cat',
-}
+--require('util.data.csv2txtcat').main{ -- train
+--    -- input
+--    path_csv = dataPath,
+--    fn_csv = 'train.csv',
+--    -- output
+--    path_txt_cat = dataPathTokCat,
+--    fn_txt = 'train.txt',
+--    fn_cat = 'train.cat',
+--}
+--require('util.data.csv2txtcat').main{ -- test
+--    -- input
+--    path_csv = dataPath,
+--    fn_csv = 'test.csv',
+--    -- output
+--    path_txt_cat = dataPathTokCat,
+--    fn_txt = 'test.txt',
+--    fn_cat = 'test.cat',
+--}
 
 ---
 print'==> [tokenize: .txt to .txt.tok]'
-require'util.data.txt2tok'.main{ -- train
-    -- input
-    path_data = dataPathTokCat,
-    fn_txt = 'train.txt',
-}
+--require'util.data.txt2tok'.main{ -- train
+--    -- input
+--    path_data = dataPathTokCat,
+--    fn_txt = 'train.txt',
+--}
 require'util.data.txt2tok'.main{ -- test
     -- input
     path_data = dataPathTokCat,
