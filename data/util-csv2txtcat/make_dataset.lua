@@ -4,16 +4,30 @@ require'pl.stringx'
 require'pl.file'
 
 --- global config: dbpedia train
-local PATH_CSV = '/home/ps/data/dbpedia'
-local FN_CSV = 'train.csv'
-local PATH_TXT_CAT = '/home/ps/data/dbpedia/tok-cat'
-local FN_TXT = 'train.txt'
-local FN_CAT = 'train.cat'
+--local PATH_CSV = '/home/ps/data/dbpedia'
+--local FN_CSV = 'train.csv'
+--local PATH_TXT_CAT = '/home/ps/data/dbpedia/tok-cat'
+--local FN_TXT = 'train.txt'
+--local FN_CAT = 'train.cat'
 
 --- global config: dbpedia test
-local PATH_CSV = '/home/ps/data/dbpedia'
+--local PATH_CSV = '/home/ps/data/dbpedia'
+--local FN_CSV = 'test.csv'
+--local PATH_TXT_CAT = '/home/ps/data/dbpedia/tok-cat'
+--local FN_TXT = 'test.txt'
+--local FN_CAT = 'test.cat'
+
+--- global config: dbpedia train deepml
+--local PATH_CSV = '/mnt/data/datasets/Text/dbpedia'
+--local FN_CSV = 'train.csv'
+--local PATH_TXT_CAT = '/mnt/data/datasets/Text/dbpedia/tok-cat'
+--local FN_TXT = 'train.txt'
+--local FN_CAT = 'train.cat'
+
+--- global config: dbpedia test deepml
+local PATH_CSV = '/mnt/data/datasets/Text/dbpedia'
 local FN_CSV = 'test.csv'
-local PATH_TXT_CAT = '/home/ps/data/dbpedia/tok-cat'
+local PATH_TXT_CAT = '/mnt/data/datasets/Text/dbpedia/tok-cat'
 local FN_TXT = 'test.txt'
 local FN_CAT = 'test.cat'
 

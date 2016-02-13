@@ -34,7 +34,22 @@ require'pl.file'
 --local VOCAB_CAT = {['1']=1, ['2']=2}
 
 --- global config: dbpedia
-local DATA_PATH = '/home/ps/data/dbpedia'
+--local DATA_PATH = '/home/ps/data/dbpedia'
+--local DATA_OUT = path.join(DATA_PATH, 'word-t7')
+--local FN_VOCAB_FREQ = 'tok-cat/train-30000.vocab'
+--local FN_TOK_TRAIN = 'tok-cat/train.txt.tok'
+--local FN_CAT_TRAIN = 'tok-cat/train.cat'
+--local FN_TOK_TEST = 'tok-cat/test.txt.tok'
+--local FN_CAT_TEST = 'tok-cat/test.cat'
+--local tmp = function ()
+--    local cat = {}
+--    for i = 1, 14 do cat[tostring(i)] = i end
+--    return cat
+--end
+--local VOCAB_CAT = tmp()
+
+--- global config: dbpedia
+local DATA_PATH = '/mnt/data/datasets/Text/dbpedia'
 local DATA_OUT = path.join(DATA_PATH, 'word-t7')
 local FN_VOCAB_FREQ = 'tok-cat/train-30000.vocab'
 local FN_TOK_TRAIN = 'tok-cat/train.txt.tok'

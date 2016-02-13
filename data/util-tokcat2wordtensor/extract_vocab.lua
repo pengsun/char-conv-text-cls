@@ -25,18 +25,23 @@ require'pl.operator'
 --local FN_VOCAB_FREQ_TRUNCATE = '/mnt/data/datasets/Text/elec/elec-200k-train-30000.vocab'
 
 
---- global config: dbpedia
+--- global config: dbpedia train
 --local FN_WORDS = '/home/ps/data/dbpedia/tok-cat/train.txt.tok'
 --local VOCAB_TRUNCATE_SIZE = 30000
 --local FN_VOCAB_FREQ = '/home/ps/data/dbpedia/tok-cat/train.vocab'
 --local FN_VOCAB_FREQ_TRUNCATE = '/home/ps/data/dbpedia/tok-cat/train-30000.vocab'
 
----
-local FN_WORDS = '/home/ps/data/dbpedia/tok-cat/test.txt.tok'
-local VOCAB_TRUNCATE_SIZE = 30000
-local FN_VOCAB_FREQ = '/home/ps/data/dbpedia/tok-cat/test.vocab'
-local FN_VOCAB_FREQ_TRUNCATE = '/home/ps/data/dbpedia/tok-cat/test-30000.vocab'
+--- global config: dbpedia test
+--local FN_WORDS = '/home/ps/data/dbpedia/tok-cat/test.txt.tok'
+--local VOCAB_TRUNCATE_SIZE = 30000
+--local FN_VOCAB_FREQ = '/home/ps/data/dbpedia/tok-cat/test.vocab'
+--local FN_VOCAB_FREQ_TRUNCATE = '/home/ps/data/dbpedia/tok-cat/test-30000.vocab'
 
+--- global config: dbpedia train, deepml
+local FN_WORDS = '/mnt/data/datasets/Text/dbpedia/tok-cat/train.txt.tok'
+local VOCAB_TRUNCATE_SIZE = 30000
+local FN_VOCAB_FREQ = '/mnt/data/datasets/Text/dbpedia/tok-cat/train.vocab'
+local FN_VOCAB_FREQ_TRUNCATE = '/mnt/data/datasets/Text/dbpedia/tok-cat/train-30000.vocab'
 
 --- helpers
 local function update_vocab(words, v, vc)

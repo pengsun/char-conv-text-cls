@@ -14,8 +14,12 @@ local PL_SCRIPT = path.join(
 )
 
 --- global config: dbpedia train
-local PATH_DATA = '/home/ps/data/dbpedia/tok-cat'
-local FN_TXT = 'train.txt'
+--local PATH_DATA = '/home/ps/data/dbpedia/tok-cat'
+--local FN_TXT = 'train.txt'
+
+--- global config: dbpedia train, deepml
+local PATH_DATA = '/mnt/data/datasets/Text/dbpedia/tok-cat'
+local FN_TXT = 'test.txt'
 
 -- make dataset
 local function make_tok(fnTxt)
