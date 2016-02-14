@@ -2,11 +2,11 @@ require'pl.path'
 local ut = require'util.misc'
 
 --- common opt
-local numClasses = 5
+local numClasses = 2 -- positive/negative
 local vocab_truncate_size = 30000 -- vocabulary control
 
-local dataPath = '/mnt/data/datasets/Text/amazon-review-full' -- deepml
---local dataPath = '/home/ps/data/amazon-review-full' -- local
+local dataPath = '/mnt/data/datasets/Text/amazon-review-polarity' -- deepml
+--local dataPath = '/home/ps/data/amazon-review-polarity' -- local
 
 local dataPathTokCat = path.join(dataPath, 'tok-cat')
 local dataPathWordT7 = path.join(dataPath, 'word-t7')
@@ -19,7 +19,7 @@ ut.ensure_path(dataPathWordT7)
 print'==> [csv to text and category: .csv to .txt & .cat]'
 local fun_get_cat = function (items) return items[1] end -- CSV entry 1
 local fun_get_txt = function (items) return items[3] end -- CSV entry 3
-require('util.data.csv2txtcat').main{ -- train
+require('data-prep.csv2txtcat').main{ -- train
     -- input
     path_csv = dataPath,
     fn_csv = 'train.csv',
@@ -30,7 +30,7 @@ require('util.data.csv2txtcat').main{ -- train
     fn_txt = 'train.txt',
     fn_cat = 'train.cat',
 }
-require('util.data.csv2txtcat').main{ -- test
+require('data-prep.csv2txtcat').main{ -- test
     -- input
     path_csv = dataPath,
     fn_csv = 'test.csv',
@@ -44,12 +44,12 @@ require('util.data.csv2txtcat').main{ -- test
 
 
 print'==> [tokenize: .txt to .txt.tok]'
-require'util.data.txt2tok'.main{ -- train
+require'data-prep.txt2tok'.main{ -- train
     -- input
     path_data = dataPathTokCat,
     fn_txt = 'train.txt',
 }
-require'util.data.txt2tok'.main{ -- test
+require'data-prep.txt2tok'.main{ -- test
     -- input
     path_data = dataPathTokCat,
     fn_txt = 'test.txt',
@@ -57,7 +57,7 @@ require'util.data.txt2tok'.main{ -- test
 
 
 print'==> [extract vocab: .txt.tok to .vocab]'
-require'util.data.extract_vocab'.main{
+require'data-prep.extract_vocab'.main{
     -- input
     fn_tokens = path.join(dataPathTokCat, 'train.txt.tok'),
     vocab_truncate_size = vocab_truncate_size,
@@ -73,7 +73,7 @@ local get_cat = function ()
     for i = 1, numClasses do cat[tostring(i)] = i end
     return cat
 end
-require'util.data.tokcat2wordtensor'.main{
+require'data-prep.tokcat2wordtensor'.main{
     -- input
     data_path = dataPathTokCat,
     fn_vocab_freq = 'train-' .. vocab_truncate_size .. '.vocab',
