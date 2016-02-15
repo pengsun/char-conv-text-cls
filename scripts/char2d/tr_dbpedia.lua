@@ -13,7 +13,7 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv2x3m.cv3x3m.cv4x3m-max-o'
+local netname = 'cv2x3m.cv3x3m-max-o'
 local HU = 500 -- #hidden units
 local seqLength = 128 -- #words per doc
 local wordLegnth = 12 -- #chars per word
@@ -22,16 +22,17 @@ local batSize = 250
 local trsize = 560*1000
 
 local itPerEp = math.floor(trsize/batSize)
-local printFreq = math.ceil( 0.061 * itPerEp )
+local printFreq = math.ceil( 0.031 * itPerEp )
 --local printFreq = 1
 local evalFreq = 1 * itPerEp -- every #epoches
 
 local opt = {
   mdPath = path.join('net', 'char2d', netname .. '.lua'),
 
-  dataPath = 'data/dbpedia-fixtail-word.lua',
-  envSavePath = 'cv/dbpedia-fixtail-word',
+  dataPath = 'data/dbpedia-fixtail-char2d.lua',
+  dataMask = {tr=true, val=true, te=false},
 
+  envSavePath = 'cv/dbpedia-fixtail-char2d',
   envSavePrefix = 'M' .. seqLength .. '-' ..
           'Q' .. wordLegnth .. '-' ..
           'HU' .. HU .. '-' ..

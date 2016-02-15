@@ -65,7 +65,12 @@ local function word_to_chartensor(word, vocabChar)
     local x = torch.ByteTensor(#word)
     for i = 1, #word do
         local c = string.sub(word, i,i)
-        x[i] = assert(vocabChar[c], "out-of-vocab char " .. c .. ', word ' .. word)
+
+        -- strict
+        --x[i] = assert(vocabChar[c], "out-of-vocab char " .. c .. ', word ' .. word)
+
+        -- loose. substitute with SPACE
+        x[i] = vocabChar[c] or vocabChar[' ']
     end
     return x
 end
