@@ -1,6 +1,7 @@
 --- data loader for text classification. Fixed Character sequence at tail. organized as 2d data
+-- (too slow, don't use this one)
 -- data storage:
---   x: N, {M_i, W}
+--   x: {N}, {M_i}, {W_j}
 --   y: N
 -- where:
 --   N = #docs, M_i = #words per doc, W_j = #chars per word
@@ -27,9 +28,6 @@ function LoaderTCFixTailChar2d:__init(ffnData, batSize, seqLength, wordLength, a
 	self.batSize = batSize or error('no batSize')
 	self.seqLength = seqLength or error('no seqLength')
 	self.wordLength = wordLength or error('no wordLength')
-	assert(wordLength == self.x[1]:size(2),
-		("inconsisten word length: arg = %d, data = %d"):format(wordLength, self.x[1]:size(2))
-	)
 
 	-- internal states
 	self.iBat = 0
@@ -79,7 +77,7 @@ function LoaderTCFixTailChar2d:next_batch()
 	for i = 1, self.batSize do
 		local ind = self.instIndex[ixBase + i]
 
-		self:get_fix_char_seq2d(self.x[ind], xx[i], self.seqLength)
+		self:get_fix_char_seq2d(self.x[ind], xx[i], self.seqLength, self.wordLength)
 		yy[i] = self.y[ind]
 	end
 
@@ -121,23 +119,25 @@ function LoaderTCFixTailChar2d:set_order_natural()
 end
 
 --- helper methods
-function LoaderTCFixTailChar2d:get_fix_char_seq2d(src, dst, seqlen)
-	-- src: M, wordlen
+function LoaderTCFixTailChar2d:get_fix_char_seq2d(src, dst, seqlen, wordlen)
+	-- src: {seqlen}
 	-- dst: seqlen, wordlen
 
-	assert(src:size(2) == dst:size(2),
-		("inconsisten word length: src = %d, dst = %d"):format(src:size(2), dst:size(2))
-	)
-
 	-- the source range at tail
-	local srcBeg = math.max(src:size(1)-seqlen+1,1)
-	local srcEnd = src:size(1)
+	local srcBeg = math.max(#src-seqlen+1,1)
+	local srcEnd = #src
 	local realLenth = srcEnd-srcBeg+1
 
 	-- the destination range at tail
 	local dstBeg = seqlen-realLenth+1
-	local dstEnd = seqlen
 
 	-- do the copying
-	src[{ {srcBeg,srcEnd}, {} }]:copy( dst[{ {dstBeg,dstEnd}, {} }] )
+	local j = dstBeg
+	for i = srcBeg, srcEnd do
+		local numChars = math.min(wordlen, src[i]:numel())
+		dst[j][{ {1, numChars} }]:copy( src[i][{ {1, numChars} }] )
+
+		j = j + 1
+	end
+
 end

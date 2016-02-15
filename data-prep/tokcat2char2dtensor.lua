@@ -3,6 +3,9 @@ require'pl.path'
 require'pl.stringx'
 require'pl.file'
 
+-- internal config
+local MAX_WORD_LENGTH = 12
+
 -- make vocabulary
 local function update_vocab(vocab, str)
     local lines = stringx.splitlines(str)
@@ -57,7 +60,7 @@ local function read_vocabWord(fnVocabWord)
     return vocab
 end
 
--- make dataset
+-- make dataset, helper
 local function word_to_chartensor(word, vocabChar)
     local x = torch.ByteTensor(#word)
     for i = 1, #word do
@@ -86,11 +89,44 @@ local function line_to_TableTensor(line, vocabWord, vocabChar)
     return xx, numoov
 end
 
-local function str_to_x_TableTableTensor(str, vocabWord, vocabChar)
+-- make dataset, helper
+local function line_to_tensor2d(line, vocabWord, vocabChar)
+    -- lower case words
+    line = string.lower(line) -- to lower case!
+    local words = stringx.split(line, ' ')
+
+    -- defult xx: filled with SPACE
+    local charFill = assert(vocabChar[' '], "no SPACE in vocabChar")
+    local xx = torch.ByteTensor(#words, MAX_WORD_LENGTH):fill(charFill)
+
+    -- fill each xx row with the corresponding word
+    local numoov = 0
+    for i = 1, #words do
+        local word = words[i]
+        if vocabWord[word] then -- in vocab word
+            local tmp = word_to_chartensor(word, vocabChar)
+            local realLen = math.min(tmp:numel(), MAX_WORD_LENGTH)
+            xx[i][{ {1,realLen} }]:copy( tmp[{ {1,realLen} }] )
+        else -- oov word, substitued as a single SPACE
+            numoov = numoov + 1
+        end
+    end
+
+    return xx, numoov
+end
+
+-- make dataset
+local function str_to_x(str, vocabWord, vocabChar)
     local x, numoov = {}, 0
     local lines = stringx.splitlines(str)
     for i, line in ipairs(lines) do
-        local xx, tmp = line_to_TableTensor(line, vocabWord, vocabChar)
+
+        -- too slow...
+        --local xx, tmp = line_to_TableTensor(line, vocabWord, vocabChar)
+
+        -- should be faster
+        local xx, tmp = line_to_tensor2d(line, vocabWord, vocabChar)
+
         table.insert(x, xx)
         numoov = numoov + tmp
 
@@ -117,7 +153,7 @@ local function make_t7(fnTok, vocabWord, vocabChar, fnCat, vocabCat, fnOut)
     print('reading token from ' .. fnTok)
     local strx = file.read(fnTok)
     print('converting...')
-    local x, numoov = str_to_x_TableTableTensor(strx, vocabWord, vocabChar)
+    local x, numoov = str_to_x(strx, vocabWord, vocabChar)
     print('#OOV words = ' .. numoov)
 
     print('reading cat from ' .. fnCat)

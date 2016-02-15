@@ -1,6 +1,5 @@
 require'nn'
 require'cudnn'
-require'onehot-temp-conv'
 
 --cudnn.fastest = true
 
@@ -15,40 +14,48 @@ this.main = function(opt)
     local Q = opt.wordLength or error('no opt.wordLength')
     local HU = opt.HU or error('no opt.HU')
 
-    local kH1, kH2 = 2, 3
+    -- 2d filter bank sizes
+    local ker = { {2,3}, {3,3}, {4,3} }
+    local nBank = #ker
 
-    local function make_cvmax(kH)
+    local function make_cv2dmax(kW, kH)
         local md = nn.Sequential()
-        -- B, M (,V)
-        md:add( nn.OneHotTemporalConvolution(V, HU, kH) )
-        -- B, M-kH1+1, HU
-        md:add( nn.TemporalMaxPooling(M-kH+1) )
-        -- B, 1, HU
+        -- B, V, M, Q
+        md:add( cudnn.SpatialConvolution(V, HU, kW, kH) )
+        -- B, HU, M-kH+1, Q-kW+1
+        md:add( cudnn.SpatialMaxPooling(Q-kW+1, M-kH+1) )
+        -- B, HU, 1, 1
         return md
     end
 
     local md = nn.Sequential()
 
-    local ct = nn.ConcatTable()
-    ct:add( make_cvmax(kH1) )
-    ct:add( make_cvmax(kH2) )
+    local convmaxbank = nn.ConcatTable()
+    for _, kk in ipairs(ker) do
+        convmaxbank:add( make_cv2dmax(unpack(kk)) )
+    end
+
 
     -- B, M, Q
     md:add( OneHot(V) )
     -- B, M, Q, V
     md:add( nn.Transpose({3,4}, {2,3}) )
     -- B, V, M, Q
-    md:add( ct )
-    -- {B, 1, HU}, {B, 1, HU}
-    md:add( nn.JoinTable(3, 3) )
-    -- B, 1, 2*HU
+
+    -- B, V, M, Q
+    md:add(convmaxbank)
+    -- {B,HU,1,1}, ... {B,HU,1,1}
+    md:add( nn.JoinTable(3, 4) )
+    -- B, HU, nBank, 1
+    md:add( cudnn.SpatialMaxPooling(1,nBank) )
+    -- B, HU, 1, 1
     md:add( nn.ReLU(true) )
     md:add( nn.Dropout() )
-    md:add( nn.Reshape(2*HU, true) )
-    -- B, 2*HU
+    md:add( nn.Reshape(HU, true) )
+    -- B, HU
 
-    -- B, 2*HU
-    md:add( nn.Linear(2*HU, K) )
+    -- B, HU
+    md:add( nn.Linear(HU, K) )
     -- B, K
     md:add( cudnn.LogSoftMax() )
     -- B, K
