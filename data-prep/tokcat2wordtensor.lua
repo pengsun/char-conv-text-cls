@@ -115,13 +115,13 @@ this.main = function(opt)
         -- input
         data_path = '/mnt/data/datasets/Text/dbpedia',
         fn_vocab_freq = 'tok-cat/train-30000.vocab',
+        vocab_cat = get_vocab_cat(),
         -- output
         data_out = path.join('/mnt/data/datasets/Text/dbpedia', 'word-t7'),
         fn_tok_train = 'tok-cat/train.txt.tok',
         fn_cat_train = 'tok-cat/train.cat',
         fn_tok_test = 'tok-cat/test.txt.tok',
         fn_cat_test = 'tok-cat/test.cat',
-        vocab_cat = get_vocab_cat(),
     }
 
     -- read and save vocab
