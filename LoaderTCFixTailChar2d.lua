@@ -139,5 +139,5 @@ function LoaderTCFixTailChar2d:get_fix_char_seq2d(src, dst, seqlen)
 	local dstEnd = seqlen
 
 	-- do the copying
-	src[{ {srcBeg,srcEnd}, {} }]:copy( dst[{ {dstBeg,dstEnd}, {} }] )
+	dst[{ {dstBeg,dstEnd}, {} }]:copy( src[{ {srcBeg,srcEnd}, {} }] )
 end
