@@ -13,17 +13,17 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv2x3m.cv3x3m.cv4x3m-max-o'
-local HU = 300 -- #hidden units
+local netname = 'cvmaxbank-join-o'
+local HU = 100 -- #hidden units
 local seqLength = 128 -- #words per doc
-local wordLegnth = 12 -- #chars per word
+local wordLegnth = 6 -- #chars per word
 
-local batSize = 125
+local batSize = 250
 local trsize = 25*1000
 
 local itPerEp = math.floor(trsize/batSize)
---local printFreq = math.ceil( 0.061 * itPerEp )
-local printFreq = 1
+local printFreq = math.ceil( 0.021 * itPerEp )
+--local printFreq = 1
 local evalFreq = 1 * itPerEp -- every #epoches
 
 local opt = {

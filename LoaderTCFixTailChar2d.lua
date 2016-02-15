@@ -122,22 +122,24 @@ end
 
 --- helper methods
 function LoaderTCFixTailChar2d:get_fix_char_seq2d(src, dst, seqlen)
-	-- src: M, wordlen
+	-- src: MM, QQ
 	-- dst: seqlen, wordlen
 
-	assert(src:size(2) == dst:size(2),
-		("inconsisten word length: src = %d, dst = %d"):format(src:size(2), dst:size(2))
-	)
+	-- the source and destination word length
+	local realWordLen = math.min(src:size(2), dst:size(2))
+--	assert(src:size(2) >= dst:size(2),
+--		("inconsisten word length: src = %d, dst = %d"):format(src:size(2), dst:size(2))
+--	)
 
-	-- the source range at tail
+	-- the source sequence range at tail
 	local srcBeg = math.max(src:size(1)-seqlen+1,1)
 	local srcEnd = src:size(1)
-	local realLenth = srcEnd-srcBeg+1
+	local realSeqLenth = srcEnd-srcBeg+1
 
-	-- the destination range at tail
-	local dstBeg = seqlen-realLenth+1
+	-- the destination sequence range at tail
+	local dstBeg = seqlen- realSeqLenth +1
 	local dstEnd = seqlen
 
 	-- do the copying
-	dst[{ {dstBeg,dstEnd}, {} }]:copy( src[{ {srcBeg,srcEnd}, {} }] )
+	dst[{ {dstBeg,dstEnd}, {1,realWordLen} }]:copy( src[{ {srcBeg,srcEnd}, {1,realWordLen} }] )
 end
