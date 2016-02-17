@@ -46,6 +46,15 @@ local function parse_csv_line (line,sep)
     return res
 end
 
+local function process_csv_specific_symbols(txt)
+    -- replace \n with SPACE
+    txt = string.gsub(txt, [[\n]], [[ ]])
+    -- remove any \"
+    txt = string.gsub(txt, [[\"]],[[]])
+
+    return txt
+end
+
 -- helper: make dataset
 local function make_txt_cat(fnCSV, gettxt, getcat, fnTxt, fnCat)
     local sep = "," -- seperated by comma
@@ -67,8 +76,9 @@ local function make_txt_cat(fnCSV, gettxt, getcat, fnTxt, fnCat)
         assert(#items>=2, fnCSV .. ": corrupted line: " .. n)
 
         -- write line: texts
-        local toks = gettxt(items)
-        fTxt:write(toks .. "\n")
+        local txt = gettxt(items)
+        txt = process_csv_specific_symbols(txt)
+        fTxt:write(txt .. "\n")
 
         -- write line: the category
         local cat = getcat(items)
