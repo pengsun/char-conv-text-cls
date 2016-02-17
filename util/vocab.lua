@@ -29,5 +29,22 @@ this.make_inverse_vocabulary = function(vocab)
     return ivocab
 end
 
+this.get_common_vocab = function(v1, v2)
+    local vc = {}
+    local idx1, idx2 = {}, {}
+    local count = 0
+
+    for word in pairs(v1) do
+        if v2[word] then -- common word found
+            count = count + 1
+            vc[word] = count
+            idx1[count] = v1[word]
+            idx2[count] = v2[word]
+        end
+    end
+
+    return vc, idx1, idx2
+end
+
 return this
 
