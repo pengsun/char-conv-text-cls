@@ -13,10 +13,16 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'pretrcv2maxcv3max-oV2'
+local netname = 'pretrcv2maxcv3max-o'
 local batSize = 125
 local seqLength = 475
 local HU = 500
+
+local trsize = 25*1000
+local itPerEp = math.floor(trsize/batSize)
+local printFreq = math.ceil( 0.071 * itPerEp )
+--local printFreq = 1
+local evalFreq = 1 * itPerEp -- every #epoches
 
 local datasetFolder = '/home/ps/data'
 local fnVocabThis = path.join(datasetFolder, 'imdb', 'word-t7', 'vocab.t7')

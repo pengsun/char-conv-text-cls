@@ -90,13 +90,14 @@ this.main = function(opt)
     end
     local dummy, vocabIdxThis, vocabIdxThat = get_common_vocab(fnVocabThis, fnVocabThat)
 
-    local function load_convbankThat(fnEnvThat)
+    local function load_model(fnEnvThat)
         print('loading that model from ' .. fnEnvThat)
         local envThat = torch.load(fnEnvThat)
         local mdThat = envThat.md
-        return mdThat:get(1) -- module 1
+        return mdThat
     end
-    local convbankThat = load_convbankThat(fnEnvThat)
+    local mdThat = load_model(fnEnvThat)
+    local convbankThat = mdThat:get(1) -- module 1 the convmaxbank
 
     local function init_convbankThis_with_convbankThat(convbankThis, convbankThat, vocabIdxThis, vocabIdxThat)
         print('using weights from that model...')
@@ -112,6 +113,23 @@ this.main = function(opt)
         end
     end
     init_convbankThis_with_convbankThat(convbankThis, convbankThat, vocabIdxThis, vocabIdxThat)
+
+    print('using nn.Linear weights from that model')
+    local function find_linear_module(md)
+        local lin = md:findModules('nn.Linear')
+        assert(#lin == 1)
+        return lin[1]
+    end
+    local function init_linear_with_that(mdThis, mdThat)
+        local linThis = find_linear_module(mdThis)
+        local linThat = find_linear_module(mdThat)
+        local tp = linThat.weight:type()
+        --require'mobdebug'.start()
+        linThis.weight:copy( linThat.weight:type(tp) )
+        linThis.bias:copy( linThat.bias:type(tp) )
+    end
+    init_linear_with_that(md, mdThat)
+
     local params, _ = md:getParameters()
     print('params norm = ' .. params:norm())
 
