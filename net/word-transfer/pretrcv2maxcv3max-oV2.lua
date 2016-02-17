@@ -53,7 +53,6 @@ this.main = function(opt)
     -- B, 1, 2*HU
     md:add( nn.Reshape(2*HU, true) )
     -- B, 2*HU
-    md:add( nn.BatchNormalization(2*HU))
     md:add( nn.ReLU(true) )
     md:add( nn.Dropout() )
     -- B, 2*HU

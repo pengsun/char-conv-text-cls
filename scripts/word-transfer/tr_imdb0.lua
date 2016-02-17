@@ -1,8 +1,8 @@
--- run train.lua
+-- run train.lua, no iteration, just duplicate that model
 require'pl.path'
 
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 2e-3, 0.97
+  local baseRate, factor = 0, 0.97
   local r = {}
   for i = 1, 10 do
     r[i] = baseRate
@@ -13,16 +13,10 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'pretrcv2maxcv3max-o'
+local netname = 'pretrcv2maxcv3max-oV2'
 local batSize = 125
 local seqLength = 475
 local HU = 500
-
-local trsize = 25*1000
-local itPerEp = math.floor(trsize/batSize)
-local printFreq = math.ceil( 0.071 * itPerEp )
---local printFreq = 1
-local evalFreq = 1 * itPerEp -- every #epoches
 
 local datasetFolder = '/home/ps/data'
 local fnVocabThis = path.join(datasetFolder, 'imdb', 'word-t7', 'vocab.t7')
@@ -52,11 +46,11 @@ local opt = {
   numClasses = 2,
 
   batSize = batSize,
-  maxEp = 40,
+  maxEp = 1,
 
-  paramInitBound = 0.05*4,
-  printFreq = printFreq,
-  evalFreq = evalFreq, -- every #epoches
+  paramInitBound = 0.0,
+  printFreq = 1,
+  evalFreq = 1,
 
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 }
