@@ -5,12 +5,10 @@ require'pl.file'
 
 --- internal config: pl script and registerd-token
 local FN_REGISTER = path.join(
-    'util', 'data',
-    'registered-tokens.txt'
+    'data-prep', 'registered-tokens.txt'
 )
 local PL_SCRIPT = path.join(
-    'util', 'data',
-    'to_tokens.pl'
+    'data-prep', 'to_tokens.pl'
 )
 
 -- make dataset
@@ -23,7 +21,8 @@ local function make_tok(fnTxt)
 
     print('running command:')
     print(cmd)
-    os.execute(cmd)
+    local code = os.execute(cmd)
+    assert(code==0, 'failed.. \n')
     print("\n")
 end
 

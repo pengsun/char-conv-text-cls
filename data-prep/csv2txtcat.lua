@@ -47,8 +47,13 @@ local function parse_csv_line (line,sep)
 end
 
 local function process_csv_specific_symbols(txt)
-    -- replace \n with SPACE
+    -- replace \n\n\n with SPACE
+    txt = string.gsub(txt, [[\n\n\n]], [[ ]])
+    -- then replace \n\n with SPACE
+    txt = string.gsub(txt, [[\n\n]], [[ ]])
+    -- then replace \n with SPACE
     txt = string.gsub(txt, [[\n]], [[ ]])
+
     -- remove any \"
     txt = string.gsub(txt, [[\"]],[[]])
 
