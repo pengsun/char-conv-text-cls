@@ -18,7 +18,9 @@ ut.ensure_path(dataPathWordT7)
 
 print'==> [csv to text and category: .csv to .txt & .cat]'
 local fun_get_cat = function (items) return items[1] end -- CSV entry 1
-local fun_get_txt = function (items) return items[3] end -- CSV entry 3
+local fun_get_txt = function (items) -- CSV entry 3, 2: content, title
+    return items[3] .. " " .. items[2]
+end
 require('data-prep.csv2txtcat').main{ -- train
     -- input
     path_csv = dataPath,

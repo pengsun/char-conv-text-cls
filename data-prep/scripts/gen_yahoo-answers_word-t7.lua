@@ -2,11 +2,11 @@ require'pl.path'
 local ut = require'util.misc'
 
 --- common opt
-local numClasses = 5
+local numClasses = 10
 local vocab_truncate_size = 30000 -- vocabulary control
 
-local dataPath = '/mnt/data/datasets/Text/amazon-review-full' -- deepml
---local dataPath = '/home/ps/data/amazon-review-full' -- local
+local dataPath = '/mnt/data/datasets/Text/yahoo-answers' -- deepml
+--local dataPath = '/home/ps/data/yahoo-answers' -- local
 
 local dataPathTokCat = path.join(dataPath, 'tok-cat')
 local dataPathWordT7 = path.join(dataPath, 'word-t7')
@@ -17,9 +17,9 @@ ut.ensure_path(dataPathWordT7)
 
 
 print'==> [csv to text and category: .csv to .txt & .cat]'
-local fun_get_cat = function (items) return items[1] end -- CSV entry 1
-local fun_get_txt = function (items) -- CSV entry 3, 2: content, title
-    return items[3] .. " " .. items[2]
+local fun_get_cat = function (items) return items[1] end -- CSV entry 1: category
+local fun_get_txt = function (items) -- CSV entry 4, 3, 2: best answer, cotent, title
+    return items[4] .. " " .. items[3] .. " " .. items[2]
 end
 require('data-prep.csv2txtcat').main{ -- train
     -- input
@@ -70,7 +70,7 @@ require'data-prep.extract_vocab'.main{
 
 
 print'==> [converting to tensors: .txt.tok & .cat to .t7]'
-local get_cat = function ()
+local get_vocab_cat = function ()
     local cat = {}
     for i = 1, numClasses do cat[tostring(i)] = i end
     return cat
@@ -83,7 +83,7 @@ require'data-prep.tokcat2wordtensor'.main{
     fn_cat_train = 'train.cat',
     fn_tok_test = 'test.txt.tok',
     fn_cat_test = 'test.cat',
-    vocab_cat = get_cat(),
+    vocab_cat = get_vocab_cat(),
     -- output
     data_out = dataPathWordT7,
 }
