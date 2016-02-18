@@ -8,7 +8,7 @@ require'pl.tablex'
 require'xlua'
 
 require'OneHot'
-local misc = require'util.misc'
+local utmisc = require'util.misc'
 
 local function init_env()
   local env = {
@@ -75,6 +75,8 @@ local function get_dft_opt()
   opt.batSize = 250
   opt.printFreq = 1
   opt.evalFreq = 10
+  opt.showEpTime = true -- show eopch time
+  opt.showIterTime = true -- show iteration time
 
   opt.gradClamp = 5
   opt.lrEpCheckpoint = make_lrEpCheckpoint()
@@ -174,7 +176,7 @@ this.main = function (opt)
   -- iterate over batches
   for i = begIt+1, maxIt do
     local epoch = i/nb
-    local time
+    local timeIter
     local curBatSize
 
     local function eval_dataset(loader)
@@ -234,13 +236,24 @@ this.main = function (opt)
     end
     
     local function print_progress()
-      local tmpl = '%d/%d (epoch %.3f), ' ..
-        'train_loss = %6.8f, grad/param norm = %6.4e, ' ..
-        'speed = %5.1f/s, %5.3fs/iter'
-      print(string.format(tmpl,
-        i, maxIt, epoch,
-        lossesTr[i], gradParams:norm() / params:norm(),
-        curBatSize/time, time))
+      if opt.showIterTime == true then
+        local tmpl = '%d/%d (epoch %.3f), ' ..
+          'train_loss = %6.8f, grad/param norm = %6.4e, ' ..
+          'speed = %5.1f/s, %5.3fs/iter'
+        print(string.format(tmpl,
+          i, maxIt, epoch,
+          lossesTr[i], gradParams:norm() / params:norm(),
+          curBatSize/ timeIter, timeIter)
+        )
+      else
+        local tmpl = '%d/%d (epoch %.3f), ' ..
+                'train_loss = %6.8f, grad/param norm = %6.4e'
+        print(string.format(tmpl,
+          i, maxIt, epoch,
+          lossesTr[i], gradParams:norm() / params:norm())
+        )
+      end
+
     end
 
     local function change_lr_when_available()
@@ -253,7 +266,7 @@ this.main = function (opt)
 
     local function save_env(env)
       -- remove intermediate data
-      misc.cleanup_model(env.md)
+      utmisc.cleanup_model(env.md)
 
       local fn = string.format('%s_epoch%.2f_lossval%.4f_errval%1.2f.t7',
         opt.envSavePrefix, env.epoch, env.lossesVal[env.i], 100*env.errVal[env.i])
@@ -265,6 +278,10 @@ this.main = function (opt)
 
     -- epoch begining
     if (i%nb) == 1 then
+      if opt.showEpTime == true then
+        print(utmisc.get_current_time_str())
+      end
+
       change_lr_when_available()
 
       -- shuffle data at epoch beginning
@@ -272,13 +289,17 @@ this.main = function (opt)
     end
 
     -- do the optimization
-    --require'mobdebug'.start()
-    time = torch.tic()--------------------------------------
-    --local _, lst = opt.optimFun(feval, params, opt.optimState)
+    -----------------------------------------------------------
+    if opt.showIterTime == true then
+      timeIter = torch.tic()
+    end
     local _, lst = optim.rmsprop(feval, params, opt.optimState)
     local loss = lst[1]
-    if opt.gpuId > 0 then cutorch.synchronize() end
-    time = torch.toc(time)----------------------------------
+    if opt.showIterTime == true then
+      if opt.gpuId > 0 then cutorch.synchronize() end
+      timeIter = torch.toc(timeIter)
+    end
+    -----------------------------------------------------------
 
     -- update
     lossesTr[i] = loss
