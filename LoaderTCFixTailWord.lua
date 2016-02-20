@@ -33,12 +33,14 @@ end
 
 function LoaderTCFixTailWord:__tostring__()
 	local str = ""
-	str = str .. type(self) .. ":\n"
+	str = str .. torch.type(self) .. ":\n"
 	str = str .. 'created from ' .. self.ffnData .. "\n"
 	str = str .. 'data size = ' .. #self.x .. "\n"
 	str = str .. 'batSize = ' .. self.batSize .. "\n"
 	str = str .. 'seqLength = ' .. self.seqLength .. "\n"
 	str = str .. 'numBat = ' .. self.numBat .. "\n"
+	local tmp = {[false]='false', [true]='true'}
+	str = str .. 'OrderRand = ' .. tmp[self.flagOrderRand] .. "\n"
 	return str
 end
 

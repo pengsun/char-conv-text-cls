@@ -1,9 +1,8 @@
 require'cudnn'
 require'OneHot'
-util = require'util.misc'
+util = require'util.vocab'
 
-
-
+-- helper
 local function load_data(opt)
     local tr,val,te,vchar = dofile(opt.dataPath).main(opt)
     local loader = te
@@ -11,7 +10,7 @@ local function load_data(opt)
 end
 
 local function load_md(opt)
-    local fn = opt.envPath or "/env/path/not/specified"
+    local fn = opt.envPath or error('no envPath')
     print('loading model from ' .. fn)
     local env = torch.load(fn)
 
@@ -19,42 +18,51 @@ local function load_md(opt)
     local cri = env.cri or nn.ClassNLLCriterion()
 
     -- reset batch size and sequence length
-    assert(opt.seqLength==env.opt.seqLength,
-        string.format("opt.segLength (=%d) must be equal to that of the saved model", opt.seqLength)
-    )
-    md = md_reset(md, opt)
+    md_reset(md, opt)
     print(md)
 
     return md, md_reset, cri
 end
 
-local function tensor_to_chars(x, ivocab)
-    local tchar = {}
+local function tensor_to_tokens(x, ivocab)
+    assert(x:dim()==2 and x:size(1)==1, "wrong x size. only support batSize = 1")
 
-    assert(x:dim()==2 and x:size(1)==1)
-
-    local str = ""
+    local str = {}
     for i = 1, x:numel() do
-        local c = ivocab[x[1][i]] or '_' -- the char or null as space
-        if c == "\n" then
+        local w = ivocab[x[1][i]] or '<unknown>' -- the char or null as space
+        if w == "\n" then
             error('%d: encounter newline!'):format(i)
         end
-        str = str .. c
+        table.insert(str, w)
     end
     return str
 end
 
 local function get_data_batch(loader, ibat)
+    loader:cuda()
+
+    print(loader)
     print('getting data batch ' .. ibat)
-    loader:evaluate()
+
     for i = 1, ibat-1 do
         loader:next_batch()
     end
     return loader:next_batch()
 end
 
+-- saliency calculation
+local function normalize_score(s, maxTarVal)
+    local maxval = maxTarVal or 1
+    local m = s:max()
+    local margin = m/maxTarVal
+    s = s:div(margin):floor()
+    s = s:byte()
+    return s
+end
+
 local function calc_saliency(md, x, iclass)
-    x = x:cuda(); md:cuda();
+    --x = x:cuda()
+    --md:cuda();
 
     --- fprop
     local outputs = md:forward(x)
@@ -68,55 +76,72 @@ local function calc_saliency(md, x, iclass)
         return go
     end
     local gradOutputs = make_gradOutputs()
+    -- enable grad input
+    local mods = md:findModules('nn.OneHotTemporalConvolution')
+    for j, mod in ipairs(mods) do
+        mod:should_updateGradInput(true)
+    end
+    -- do the real bprop
     md:backward(x, gradOutputs)
 
     --- get the abs grad map, max over channel V
-    local imodule = 2
-    local g = md:get(imodule).gradInput -- B,M,V
+    local iModoulePeek = 1
+    local g = md:get(iModoulePeek).gradInput -- B,M,V
     local B, M = g:size(1), g:size(2)
     g = g:abs():max(3):reshape(B,M) -- B, M
 
-    g = g:float()
+    g = g:float() -- B, M
 
-    local function normalize_01(s)
-        --- normalize to [0,1]
-        local m = s:max()
-        local margin = m/9
-        s = s:div(margin):floor()
-        s = s:byte()
-        return s
-    end
-
-    return normalize_01(g), outputs
+    return g, outputs
 end
 
-local function chars_saliency_to_str(chars, s, dispWidth)
-    dispWidth = dispWidth or 50
+-- renderer
+local function render_print(tokens, s)
+    local function words_saliency_to_str(words, s)
+        s = s:view(-1)
+        assert(#words==s:numel())
 
-    s = s:squeeze()
-    assert(#chars == s:numel())
-
-    local str = ""
-    local linelen = 0
-    for i = 1, #chars do
-        str = str .. string.sub(chars, i,i)
-        linelen = linelen + 1
-
-        if i%dispWidth == 0 or i == #chars then
-            -- append newline for string
-            str = str .. "\n"
-
-            -- append score string
-            for j = i-linelen+1, i do
-                str = str .. s[j]
-            end
-            -- append newline for score string
-            str = str .. "\n"
-            -- clear
-            linelen = 0
+        local str = ""
+        for i = 1, #words do
+            str = str .. words[i] .. "  " .. s[i] .. "\n"
         end
+
+        return str
     end
-    return str
+
+    local str = words_saliency_to_str(tokens, s)
+    print("\n")
+    print(str)
+end
+
+local function render_html(words, s)
+    local function wordval_to_item(word, v)
+        local tmpl = [[<span style="color:#%s0000">%s</span>]]
+        local strColor = ('%02x'):format(v):upper()
+        return tmpl:format(strColor, word)
+    end
+
+    local function words_saliency_to_htmlstr(words, s)
+        local header = [[<p style="font-size:12px;">]] .. "\n"
+        local tail = [[</p>]]
+        local content = ""
+        for i, word in ipairs(words) do
+            content = content ..
+                    wordval_to_item(word, s[i]) ..
+                    " "
+        end
+        return header .. content .. tail
+    end
+
+    require'mobdebug'.start()
+    s = s:view(-1) -- vectorized
+    assert(#words == s:numel())
+
+    local str = words_saliency_to_htmlstr(words, s)
+    file = require'pl.file'
+    local fn = path.tmpname() .. '.html'
+    file.write(fn, str)
+    os.execute('xdg-open ' .. fn)
 end
 
 local this = {}
@@ -141,6 +166,8 @@ this.main = function(opt)
 
             --    ibat = math.random(1,25000), -- which data batch interested
             --    iclass = nil, -- which class interested, use that from label y if nil value
+
+            renderer = 'print'
         }
         return opt
     end
@@ -151,8 +178,8 @@ this.main = function(opt)
 
     --- load data, model
     assert(opt.batSize==1, "batSize must equal to 1")
-    local loader, vocabChar = load_data(opt)
-    local ivocabChar = util.make_inverse_vocabulary(vocabChar)
+    local loader, vocabWord = load_data(opt)
+    local ivocabWord = util.make_inverse_vocabulary(vocabWord)
     local md, md_reset, cri = load_md(opt)
 
     --- get data batch
@@ -161,8 +188,9 @@ this.main = function(opt)
     assert(y:numel()==1)
     print('target = ' .. y[1])
 
-    --- get input chars
-    local chars = tensor_to_chars(x, ivocabChar) -- B, {M}
+    --- get input tokens as string table
+    --require'mobdebug'.start()
+    local tokens = tensor_to_tokens(x, ivocabWord)
 
     --- get saliency map
     local function get_iclass()
@@ -179,10 +207,15 @@ this.main = function(opt)
     print('prediction = ' .. pred:squeeze())
 
     --- render the sailiency map
-    local dispWidth = opt.dispWidth or 70
-    local str = chars_saliency_to_str(chars, s, dispWidth)
-    print("\n")
-    print(str)
+    if opt.renderer == 'print' then
+        local maxTarVal = 9
+        render_print(tokens, normalize_score(s,maxTarVal))
+    elseif opt.renderer == 'html' then
+        local maxTarVal = 255
+        render_html(tokens, normalize_score(s,maxTarVal))
+    else
+        error('unknown renderer ' .. opt.renderer)
+    end
 
 end
 

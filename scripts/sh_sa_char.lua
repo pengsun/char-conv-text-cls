@@ -27,4 +27,4 @@ local opt = {
     --    iclass = nil, -- which class interested, use that from label y if nil value
 }
 
-dofile('show_saliency.lua').main(opt)
+dofile('show_saliency_char.lua').main(opt)

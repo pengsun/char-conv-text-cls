@@ -22,7 +22,7 @@ local trsize = 25*1000
 local itPerEp = math.floor(trsize/batSize)
 local printFreq = math.ceil( 0.031 * itPerEp )
 --local printFreq = 1
-local evalFreq = 1 * itPerEp -- every #epoches
+local evalFreq = 3 * itPerEp -- every #epoches
 
 local opt = {
   mdPath = path.join('net', 'word', netname .. '.lua'),
@@ -46,6 +46,8 @@ local opt = {
   paramInitBound = 0.05,
   printFreq = printFreq,
   evalFreq = evalFreq, -- every #epoches
+  showEpTime = true,
+  showIterTime = true,
 
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 }

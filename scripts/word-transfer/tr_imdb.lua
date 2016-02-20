@@ -24,8 +24,8 @@ local printFreq = math.ceil( 0.071 * itPerEp )
 --local printFreq = 1
 local evalFreq = 1 * itPerEp -- every #epoches
 
---local datasetFolder = '/home/ps/data'
-local datasetFolder = '/mnt/data/datasets/Text'
+local datasetFolder = '/home/ps/data'
+--local datasetFolder = '/mnt/data/datasets/Text'
 local fnVocabThis = path.join(datasetFolder, 'imdb', 'word-t7', 'vocab.t7')
 local fnVocabThat = path.join(datasetFolder, 'yelp-review-polarity', 'word-t7', 'vocab.t7')
 local fnEnvThat = path.join('cv/yelprevpol-fixtail-word',
