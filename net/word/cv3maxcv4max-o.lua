@@ -58,8 +58,8 @@ this.main = function(opt)
     reinit_params(md)
 
     local function md_reset(md, arg)
-        local newM = arg.seqLength or error('no seqLength')
-        assert(newM==M, "inconsisten seq length")
+        --local newM = arg.seqLength or error('no seqLength')
+        --assert(newM==M, "inconsisten seq length")
     end
 
     return md, md_reset

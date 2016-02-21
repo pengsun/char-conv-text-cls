@@ -29,10 +29,11 @@ local function tensor_to_tokens(x, ivocab)
 
     local str = {}
     for i = 1, x:numel() do
-        local w = ivocab[x[1][i]] or '<unknown>' -- the char or null as space
-        if w == "\n" then
-            error('%d: encounter newline!'):format(i)
-        end
+        local w = ivocab[x[1][i]]
+
+        w = w or error('out-of-vocabulary word ' .. w)
+        w = w:gsub("<", "|"):gsub(">","|") -- replace html key words
+
         table.insert(str, w)
     end
     return str
@@ -52,17 +53,18 @@ end
 
 -- saliency calculation
 local function normalize_score(s, maxTarVal)
-    local maxval = maxTarVal or 1
+    local maxTarVal = maxTarVal or 1
     local m = s:max()
     local margin = m/maxTarVal
     s = s:div(margin):floor()
-    s = s:byte()
+    s = s:long()
     return s
 end
 
 local function calc_saliency(md, x, iclass)
-    --x = x:cuda()
-    --md:cuda();
+    x = x:cuda()
+    md:cuda()
+    md:evaluate()
 
     --- fprop
     local outputs = md:forward(x)
@@ -109,20 +111,22 @@ local function render_print(tokens, s)
         return str
     end
 
+    local maxTarVal = 9
+    s = normalize_score(s,maxTarVal)
+
     local str = words_saliency_to_str(tokens, s)
     print("\n")
     print(str)
 end
 
 local function render_html(words, s)
-    local function wordval_to_item(word, v)
-        local tmpl = [[<span style="color:#%s0000">%s</span>]]
-        local strColor = ('%02x'):format(v):upper()
-        return tmpl:format(strColor, word)
-    end
-
     local function words_saliency_to_htmlstr(words, s)
-        local header = [[<p style="font-size:12px;">]] .. "\n"
+        local function wordval_to_item(word, v)
+            local tmpl = [[<td style="color:#%s0000">%s</td>]]
+            local strColor = ('%02x'):format(v):upper()
+            return tmpl:format(strColor, word)
+        end
+        local header = [[<p style="font-size:22px;">]] .. "\n"
         local tail = [[</p>]]
         local content = ""
         for i, word in ipairs(words) do
@@ -133,11 +137,69 @@ local function render_html(words, s)
         return header .. content .. tail
     end
 
-    require'mobdebug'.start()
+    local function words_saliency_to_htmlstrtable(words, s)
+        local header = [[
+ <!DOCTYPE html>
+<html>
+<head>
+<style>
+table, td {
+    border: 1px solid black;
+}
+</style>
+</head>
+<body>
+<table>
+]]
+        local tail = [[
+</table>
+</body>
+</html>
+]]
+
+        local function wordval_to_item(word, v)
+            local tmpl = [[<td bgcolor="#%s">%s</td>]]
+
+            local str1 = ('%02x'):format(255-v):upper()
+            local str2 = ('%02x'):format(255-0.5*v):upper()
+            local str3 = 'FF'
+            local strColor = str3 .. str1 .. str2
+
+            return tmpl:format(strColor, word)
+        end
+
+        local function words_scores_to_htmlrow(words, scores)
+            local n = #words; assert(n == scores:numel())
+            local str = [[<tr>\n]]
+            for i = 1, n do
+                str = str .."\t" .. wordval_to_item(words[i], scores[i]) .. "\n"
+            end
+            str = str .. "</tr>"
+            return str
+        end
+
+        local content = ""
+        local numCol = 7
+        local numRow = math.ceil(#words/numCol)
+        for i = 1, numRow do
+            local ibeg = numCol*(i-1) + 1
+            local iend = math.min(ibeg + numCol-1, #words)
+
+            local ww = {table.unpack(words, ibeg, iend)}
+            local ss = s[{ {ibeg, iend} }]
+
+            content = content .. words_scores_to_htmlrow(ww, ss)
+        end
+        return header .. content .. tail
+    end
+
     s = s:view(-1) -- vectorized
     assert(#words == s:numel())
 
-    local str = words_saliency_to_htmlstr(words, s)
+    local maxTarVal = 255
+    s = normalize_score(s, maxTarVal)
+
+    local str = words_saliency_to_htmlstrtable(words, s)
     file = require'pl.file'
     local fn = path.tmpname() .. '.html'
     file.write(fn, str)
@@ -208,11 +270,9 @@ this.main = function(opt)
 
     --- render the sailiency map
     if opt.renderer == 'print' then
-        local maxTarVal = 9
-        render_print(tokens, normalize_score(s,maxTarVal))
+        render_print(tokens, s)
     elseif opt.renderer == 'html' then
-        local maxTarVal = 255
-        render_html(tokens, normalize_score(s,maxTarVal))
+        render_html(tokens, s)
     else
         error('unknown renderer ' .. opt.renderer)
     end
