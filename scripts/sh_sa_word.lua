@@ -18,7 +18,7 @@ dofile('show_saliency_word.lua').main{
     seqLength = seqLength,
     batSize = 1,
 
-    ibat = 23633, -- which data batch interested
+    ibat = 19622, -- which data batch interested
     iclass = 2, -- which class interested, use that from label y if nil value
 
 --    ibat = math.random(1,25000), -- which data batch interested
