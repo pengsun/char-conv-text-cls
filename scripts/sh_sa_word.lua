@@ -18,11 +18,12 @@ dofile('show_saliency_word.lua').main{
     seqLength = seqLength,
     batSize = 1,
 
-    ibat = 19622, -- which data batch interested
+    ibat = 2159, -- which data batch interested
     iclass = 2, -- which class interested, use that from label y if nil value
 
 --    ibat = math.random(1,25000), -- which data batch interested
 --    iclass = nil, -- which class interested, use that from label y if nil value
 
-    renderer = 'html'
+    renderer = 'html',
+    saType = 'posneg',
 }

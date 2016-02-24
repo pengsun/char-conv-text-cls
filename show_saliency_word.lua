@@ -54,14 +54,69 @@ end
 -- saliency calculation
 local function normalize_score(s, maxTarVal)
     local maxTarVal = maxTarVal or 1
-    local m = s:max()
-    local margin = m/maxTarVal
-    s = s:div(margin):floor()
-    s = s:long()
+
+    -- positive part
+    local mskPos = s:ge(0)
+    if torch.any(mskPos) then
+        local m = s[mskPos]:max()
+        local margin = m/maxTarVal
+        s[mskPos] = s[mskPos]:div(margin)
+    end
+
+    -- negative part
+    local mskNeg = s:lt(0)
+    if torch.any(mskNeg) then
+        local mm = math.abs( s[mskNeg]:min() )
+        local mmargin = mm/maxTarVal
+        s[mskNeg] = s[mskNeg]:div(mmargin)
+    end
+
+    s = s:floor():long()
     return s
 end
 
-local function calc_saliency(md, x, iclass)
+local function make_gradOutputs(outputs, iclass)
+    local B, K = outputs:size(1), outputs:size(2)
+    local go = torch.zeros(B,K, 'torch.CudaTensor')
+    go[{ {}, {iclass} }]:fill(1)
+
+    return go
+end
+
+local function extract_gradInput(md)
+    --- get the abs grad map, max over channel V
+    local iModoulePeek = 1
+    local g = md:get(iModoulePeek).gradInput -- B,M,V
+    local B, M = g:size(1), g:size(2)
+    g = g:abs():max(3):reshape(B,M) -- B, M
+    return g -- B, M
+end
+
+local function extract_gradInputV2(md)
+    --- get the pos/neg grad map, max over channel V
+    local iModoulePeek = 1
+    local g = md:get(iModoulePeek).gradInput -- B,M,V
+    local B, M = g:size(1), g:size(2)
+
+    --
+    local gg = g:float()
+    local gret = torch.FloatTensor(B,M)
+    for i = 1, B do
+        for j = 1, M do
+            local pmax = gg[i][j]:max()
+            local nmax = math.abs( gg[i][j]:min() )
+            if pmax > nmax then
+                gret[i][j] = pmax
+            else
+                gret[i][j] = -nmax
+            end
+        end
+    end
+
+    return gret:typeAs(g)
+end
+
+local function calc_saliency(md, x, iclass, opt)
     x = x:cuda()
     md:cuda()
     md:evaluate()
@@ -70,15 +125,8 @@ local function calc_saliency(md, x, iclass)
     local outputs = md:forward(x)
 
     --- bprop
-    local function make_gradOutputs()
-        local B, K = outputs:size(1), outputs:size(2)
-        local go = torch.zeros(B,K, 'torch.CudaTensor')
-        go[{ {}, {iclass} }]:fill(1)
-
-        return go
-    end
-    local gradOutputs = make_gradOutputs()
-    -- enable grad input
+    local gradOutputs = make_gradOutputs(outputs, iclass)
+    -- enable grad input, when necessary
     local mods = md:findModules('nn.OneHotTemporalConvolution')
     for j, mod in ipairs(mods) do
         mod:should_updateGradInput(true)
@@ -86,11 +134,16 @@ local function calc_saliency(md, x, iclass)
     -- do the real bprop
     md:backward(x, gradOutputs)
 
-    --- get the abs grad map, max over channel V
-    local iModoulePeek = 1
-    local g = md:get(iModoulePeek).gradInput -- B,M,V
-    local B, M = g:size(1), g:size(2)
-    g = g:abs():max(3):reshape(B,M) -- B, M
+    --- get the saliancy map from model
+    local saType = opt.saType or 'pos'
+    local g
+    if saType == 'pos' then
+        g = extract_gradInput(md) -- B, M
+    elseif saType == 'posneg' then
+        g = extract_gradInputV2(md) -- B, M
+    else
+        error('unknown saliency type ' .. saType)
+    end
 
     g = g:float() -- B, M
 
@@ -160,10 +213,17 @@ table, td {
         local function wordval_to_item(word, v)
             local tmpl = [[<td bgcolor="#%s">%s</td>]]
 
-            local str1 = ('%02x'):format(255-v):upper()
-            local str2 = ('%02x'):format(255-0.5*v):upper()
+            local vv = math.abs(v)
+            local str1 = ('%02x'):format(255-vv):upper()
+            local str2 = ('%02x'):format(255-0.5*vv):upper()
             local str3 = 'FF'
-            local strColor = str3 .. str1 .. str2
+            local strColor
+
+            if v > 0 then -- red
+                strColor = str3 .. str1 .. str2
+            else -- blue
+                strColor = str1 .. str2 .. str3
+            end
 
             return tmpl:format(strColor, word)
         end
@@ -229,7 +289,8 @@ this.main = function(opt)
             --    ibat = math.random(1,25000), -- which data batch interested
             --    iclass = nil, -- which class interested, use that from label y if nil value
 
-            renderer = 'print'
+            saType = 'pos',
+            renderer = 'print',
         }
         return opt
     end
@@ -251,7 +312,6 @@ this.main = function(opt)
     print('target = ' .. y[1])
 
     --- get input tokens as string table
-    --require'mobdebug'.start()
     local tokens = tensor_to_tokens(x, ivocabWord)
 
     --- get saliency map
@@ -261,7 +321,8 @@ this.main = function(opt)
     end
     local iclass = get_iclass()
     print('calculating saliency map for class ' .. iclass)
-    local s, outputs = calc_saliency(md, x, iclass) -- B, M
+    --require'mobdebug'.start()
+    local s, outputs = calc_saliency(md, x, iclass, opt) -- B, M
 
     --- show prediction
     print('outputs = ' .. outputs[1][1], ', ' .. outputs[1][2])
