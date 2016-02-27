@@ -13,8 +13,8 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv2maxcv3max-o'
-local HU = 500 -- #hidden units
+local netname = 'cv3mp5-cv3mp5-avg-o'
+local HU = 256 -- #hidden units
 local seqLength = 225 -- #words per doc
 
 local batSize = 250

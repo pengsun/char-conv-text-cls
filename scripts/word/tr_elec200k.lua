@@ -13,10 +13,10 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv3maxcv4max-o'
-local batSize = 20
-local seqLength = 475
-local HU = 1000
+local netname = 'cv3mp5-cv3mp5-avg-o'
+local batSize = 250
+local seqLength = 275
+local HU = 256
 
 local trsize = 200*1000
 local itPerEp = math.floor(trsize/batSize)
