@@ -15,7 +15,7 @@ end
 
 local netname = 'cv2maxcv3max-o'
 local batSize = 250
-local seqLength = 25
+local seqLength = 475
 local HU = 500
 
 local trsize = 25*1000

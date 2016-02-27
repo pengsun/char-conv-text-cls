@@ -15,7 +15,7 @@ end
 
 local netname = 'cv2maxcv3max-o'
 local HU = 500 -- #hidden units
-local seqLength = 225 -- #words per doc
+local seqLength = 400 -- #words per doc
 
 local batSize = 250
 local trsize = 3600*1000
