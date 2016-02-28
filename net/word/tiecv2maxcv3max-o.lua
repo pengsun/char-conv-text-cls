@@ -14,7 +14,7 @@ this.main = function(opt)
     local M = opt.seqLength or 291
     local HU = opt.HU or 190
 
-    local kH1, kH2, kH3 = 2, 3, 4
+    local kH1, kH2 = 2, 3
 
     local function make_cvmax(kH)
         local md = nn.Sequential()
@@ -23,8 +23,6 @@ this.main = function(opt)
         -- B, M-kH1+1, HU
         md:add( nn.TemporalMaxPooling(M-kH+1) )
         -- B, 1, HU
-        md:add( nn.View(-1):setNumInputDims(2) )
-        -- B, HU
         return md
     end
 
@@ -33,22 +31,34 @@ this.main = function(opt)
     local ct = nn.ConcatTable()
     ct:add( make_cvmax(kH1) )
     ct:add( make_cvmax(kH2) )
-    ct:add( make_cvmax(kH3) )
 
     -- B, M (,V)
     md:add( ct )
-    -- {B, HU}, {B, HU}, {B, HU}
-    md:add( nn.JoinTable(2, 2) )
-    -- B, 3*HU
+    -- {B, 1, HU}, {B, 1, HU}
+    md:add( nn.JoinTable(3, 3) )
+    -- B, 1, 2*HU
     md:add( nn.ReLU(true) )
     md:add( nn.Dropout() )
-    -- B, 3*HU
+    md:add( nn.Reshape(2*HU, true) )
+    -- B, 2*HU
 
-    -- B, 3*HU
-    md:add( nn.Linear(3*HU, K) )
+    -- B, 2*HU
+    md:add( nn.Linear(2*HU, K) )
     -- B, K
     md:add( cudnn.LogSoftMax() )
     -- B, K
+
+
+    local function tie_weights()
+        print('tying weights...')
+
+        local oh1 = ct:get(1):get(1)
+        local oh2 = ct:get(2):get(1)
+
+        nn.OneHotTemporalConvolution.share_weights({oh1,oh2}, {1,1})
+        --nn.OneHotTemporalConvolution.share_weights({oh1,oh2}, {2,2})
+    end
+    tie_weights()
 
     local function reinit_params(md)
         local b = opt.paramInitBound or 0.08

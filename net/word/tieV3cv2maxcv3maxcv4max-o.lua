@@ -50,6 +50,19 @@ this.main = function(opt)
     md:add( cudnn.LogSoftMax() )
     -- B, K
 
+    local function tie_weights()
+        print('tying weights...')
+
+        local oh1 = ct:get(1):get(1)
+        local oh2 = ct:get(2):get(1)
+        local oh3 = ct:get(3):get(1)
+
+        nn.OneHotTemporalConvolution.share_weights({oh1,oh2,oh3}, {1,1,1})
+        nn.OneHotTemporalConvolution.share_weights({oh1,oh2,oh3}, {2,2,2})
+        nn.OneHotTemporalConvolution.share_weights({oh2,oh3}, {3,3})
+    end
+    tie_weights()
+
     local function reinit_params(md)
         local b = opt.paramInitBound or 0.08
         print( ('reinit params uniform, [%4.3f, %4.3f]'):format(-b,b) )

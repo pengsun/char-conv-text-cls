@@ -13,9 +13,9 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv2maxcv3max-o'
+local netname = 'tieV2cv2maxcv3maxcv4max-o'
 local HU = 500 -- #hidden units
-local seqLength = 228 -- #words per doc
+local seqLength = 125 -- #words per doc
 
 local batSize = 250
 local trsize = 1400*1000
@@ -23,7 +23,7 @@ local trsize = 1400*1000
 local itPerEp = math.floor(trsize/batSize)
 local printFreq = math.ceil( 0.061 * itPerEp )
 --local printFreq = 1
-local evalFreq = 1 * itPerEp -- every #epoches
+local evalFreq = 3 * itPerEp -- every #epoches
 
 local opt = {
   mdPath = path.join('net', 'word', netname .. '.lua'),
