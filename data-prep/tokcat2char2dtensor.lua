@@ -181,7 +181,7 @@ this.main = function (opt)
         data_path = '/home/ps/data/elec',
         vocab_cat = {["1"]=1, ["2"]=2},
         -- output
-        data_out = path.join(DATA_PATH, 'tr25k-char-t7'),
+        data_out = path.join('/home/ps/data/elec', 'tr25k-char-t7'),
         fn_tok_train = 'elec-25k-train.txt.tok',
         fn_cat_train = 'elec-25k-train.cat',
         fn_tok_test = 'elec-test.txt.tok',

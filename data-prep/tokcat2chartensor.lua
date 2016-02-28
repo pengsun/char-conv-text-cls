@@ -3,23 +3,8 @@ require'pl.path'
 require'pl.stringx'
 require'pl.file'
 
---- global config: imdb
---local DATA_PATH = '/home/ps/data/imdb'
---local DATA_OUT = path.join(DATA_PATH, 'char-t7V3')
---local FN_TOK_TRAIN = 'imdb-train.txt.tok'
---local FN_CAT_TRAIN = 'imdb-train.cat'
---local FN_TOK_TEST = 'imdb-test.txt.tok'
---local FN_CAT_TEST = 'imdb-test.cat'
---local VOCAB_CAT = {["pos"]=1, ["neg"]=2}
-
---- global config: elec 25k
-local DATA_PATH = '/home/ps/data/elec'
-local DATA_OUT = path.join(DATA_PATH, 'tr25k-char-t7')
-local FN_TOK_TRAIN = 'elec-25k-train.txt.tok'
-local FN_CAT_TRAIN = 'elec-25k-train.cat'
-local FN_TOK_TEST = 'elec-test.txt.tok'
-local FN_CAT_TEST = 'elec-test.cat'
-local VOCAB_CAT = {["1"]=1, ["2"]=2}
+-- global
+local CHAR_FILL = '_' -- underline for unknown/unll char
 
 -- make vocabulary
 local function update_vocab(vocab, str)
@@ -35,9 +20,9 @@ local function update_vocab(vocab, str)
     end
 end
 
-local function make_vocab()
-    --- from Crepe + SPACE. size 68
-    local chars = "abcdefghijklmnopqrstuvwxyz0123456789,;.!?:'\"/\\|_@#$%^&*~`+=<>()[]{}" .. " "
+local function make_vocabChar()
+    --- from Crepe + SPACE. size 69
+    local chars = "abcdefghijklmnopqrstuvwxyz0123456789,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}" .. " "
 
     local vchar, count = {}, 0
     for i = 1, #chars do
@@ -54,6 +39,43 @@ local function make_vocab()
 end
 
 -- make dataset
+local function line_to_tensor(line, vocab)
+    -- make sure to be consistent with word tensor
+    line = string.lower(line) -- to lower case!
+    local words = stringx.split(line, ' ')
+
+    local xx = {}
+    local numoov = 0
+    local function insert_xx (c) -- insert char + SPACE
+        table.insert(xx, vocab[c])
+        table.insert(xx, vocab[' '])
+    end
+
+    for i = 1, #words do
+        local word = words[i]
+
+        if #word == 0 then -- null word, replace with symbol + SPACE
+            insert_xx(CHAR_FILL)
+        else -- check the word
+            for j = 1, #word do
+                local c = word:sub(j,j)
+                if vocab[c] then -- in vocab
+                    insert_xx(c)
+                else -- oov, always index 1
+                    insert_xx(CHAR_FILL)
+                    numoov = numoov + 1
+                end
+            end -- for j
+        end -- if #word == 0
+    end -- for i
+
+    -- to byte tensor
+    local txx = torch.Tensor(xx):byte()
+    return txx, numoov
+end
+
+--[[
+-- obsolete: inconsistent with word tensor
 local function line_to_tensor(line, vocab)
     line = string.lower(line) -- to lower case!
 
@@ -73,33 +95,36 @@ local function line_to_tensor(line, vocab)
 
     return xx, numoov
 end
+]]--
 
 local function str_to_x_tabletensor(str, vocab)
     local x, numoov = {}, 0
     local lines = stringx.splitlines(str)
-    for _, line in pairs(lines) do
+    for i, line in pairs(lines) do
         local xx, tmp = line_to_tensor(line, vocab)
         table.insert(x, xx)
         numoov = numoov + tmp
+
+        xlua.progress(i, #lines)
     end
 
     return x, numoov
 end
 
-local function str_to_y_tensor(str)
+local function str_to_y_tensor(str, vocabCat)
     local lines = stringx.splitlines(str)
     local y = torch.LongTensor(#lines)
     for i = 1, y:numel() do
         local cat = lines[i]
 
-        assert(VOCAB_CAT[cat], "unknown " .. cat .. 'at ' .. i)
-        y[i] = VOCAB_CAT[cat]
+        assert(vocabCat[cat], "unknown " .. cat .. 'at ' .. i)
+        y[i] = vocabCat[cat]
     end
 
     return y
 end
 
-local function make_t7(fnTok, vocab, fnCat, fnOut)
+local function make_t7(fnTok, vocab, fnCat, vocabCat, fnOut)
     print('making t7 dataset...')
 
     print('reading token from ' .. fnTok)
@@ -111,31 +136,48 @@ local function make_t7(fnTok, vocab, fnCat, fnOut)
     print('reading cat from ' .. fnCat)
     local stry = file.read(fnCat)
     print('converting...')
-    local y = str_to_y_tensor(stry)
+    local y = str_to_y_tensor(stry, vocabCat)
 
     print('saving to ' .. fnOut)
     torch.save(fnOut, {x=x, y=y})
 end
 
-local function main()
+-- exposed
+local this = {}
+
+this.main = function (opt)
+
+    -- default/examplar opt
+    local opt = opt or {
+        -- input
+        data_path = '/home/ps/data/datasets/Text/elec',
+        vocab_cat = {["1"]=1, ["2"]=2},
+        fn_tok_train = 'elec-25k-train.txt.tok',
+        fn_cat_train = 'elec-25k-train.cat',
+        fn_tok_test = 'elec-test.txt.tok',
+        fn_cat_test = 'elec-test.cat',
+        -- output
+        data_out = path.join('/home/ps/data/datasets/Text/elec', 'tr25k-char-t7'),
+    }
+
     -- make and save vocab
-    local vocab = make_vocab()
-    local fnVocab = path.join(DATA_OUT, 'vocab.t7')
+    local vocab = make_vocabChar()
+    local fnVocab = path.join(opt.data_out, 'vocab.t7')
     print('made vocab size = ' .. tablex.size(vocab))
     print('saving vocab to ' .. fnVocab)
     torch.save(fnVocab, vocab)
 
     -- make tr
-    make_t7(path.join(DATA_PATH, FN_TOK_TRAIN), vocab,
-        path.join(DATA_PATH, FN_CAT_TRAIN),
-        path.join(DATA_OUT, 'tr.t7')
+    make_t7(path.join(opt.data_path, opt.fn_tok_train), vocab,
+        path.join(opt.data_path, opt.fn_cat_train), opt.vocab_cat,
+        path.join(opt.data_out, 'tr.t7')
     )
 
     -- make te
-    make_t7(path.join(DATA_PATH, FN_TOK_TEST), vocab,
-        path.join(DATA_PATH, FN_CAT_TEST),
-        path.join(DATA_OUT, 'te.t7')
+    make_t7(path.join(opt.data_path, opt.fn_tok_test), vocab,
+        path.join(opt.data_path, opt.fn_cat_test), opt.vocab_cat,
+        path.join(opt.data_out, 'te.t7')
     )
 end
 
-main()
+return this
