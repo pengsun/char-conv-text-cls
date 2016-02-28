@@ -1,6 +1,13 @@
---- word loader for text classification. Fixed length sentence x word token sequence at tail
--- xx: B, S, M (,V)
--- yy: B
+--- word loader for text classification. Fixed length sentence-by-word token sequence at tail
+-- expected input data batch:
+--   x: {B, [M_i]}
+--   y: B
+-- where M_i = #words in doc_i
+-- guaranteed output data batch:
+--   xx: B, S, M (,V)
+--   yy: B
+-- where S = #sentences, M = #words, V = vocabulary size
+--
 require'torch'
 
 --- class def

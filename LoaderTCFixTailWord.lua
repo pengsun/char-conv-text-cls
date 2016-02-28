@@ -1,6 +1,12 @@
 --- word loader for text classification. Fixed length word token sequence at tail
--- xx: B, M (,V)
--- yy: B
+-- expected input data
+--   x: {B, [M_i]}
+--   y: B
+-- where B = #docs, M_i = #words in doc_i
+-- guaranteed output data batch
+--   xx: B, M (,V)
+--   yy: B
+--
 require'torch'
 
 --- class def
