@@ -1,10 +1,10 @@
 --- data loader for text classification. Fixed Character sequence at tail. organized as 2d data
--- data storage:
---   x: N, {M_i, W}
+-- expected input data:
+--   x: {N, [M_i, W]}
 --   y: N
 -- where:
 --   N = #docs, M_i = #words per doc, W_j = #chars per word
--- guaranteed data batch:
+-- guaranteed output data batch:
 --   xx: B, M, Q
 --   yy: B
 -- where:
