@@ -13,7 +13,7 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv7x1mp2-cv3x1max-max-o'
+local netname = 'cv5x1max-cv1x3max-o'
 local HU = 200 -- #hidden units
 local seqLength = 275 -- #words per doc
 local winSize = 28 -- #chars per window
