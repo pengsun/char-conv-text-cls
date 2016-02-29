@@ -13,36 +13,32 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv5x1max-cv1x3max-o'
-local HU = 500 -- #hidden units
-local seqLength = 275 -- #words per doc
-local winSize = 16 -- #chars per window
+local netname = 'cv2maxcv3maxcv4max-o'
+local batSize = 250
+local seqLength = 475
+local HU = 500
 
-local batSize = 100
 local trsize = 25*1000
-
 local itPerEp = math.floor(trsize/batSize)
-local printFreq = math.ceil( 0.021 * itPerEp )
+local printFreq = math.ceil( 0.031 * itPerEp )
 --local printFreq = 1
 local evalFreq = 3 * itPerEp -- every #epoches
 
 local opt = {
-  mdPath = path.join('net', 'charwordwin', netname .. '.lua'),
+  mdPath = path.join('net', 'word', netname .. '.lua'),
 
-  dataPath = 'data/elec25k-fixtail-charwordwin.lua',
-  dataMask = {tr = true, val = true, te = false},
+  dataPath = 'data/imdb-fixtail-word.lua',
+  dataMask = {tr=true, val=true, te=false},
 
-  envSavePath = 'cv/elec25k-fixtail-charwordwin',
+  envSavePath = 'cv/imdb-fixtail-word',
   envSavePrefix = 'M' .. seqLength .. '-' ..
-          'Q' .. winSize .. '-' ..
           'HU' .. HU .. '-' ..
           netname,
 
-  seqLength = seqLength, -- #words per doc
-  winSize = winSize, -- #chars per window
-  V = 69, -- vocab
-  HU = HU, -- #hidden units
-  numClasses = 2, -- positive/negative
+  seqLength = seqLength,
+  V = 30000 + 1, -- vocab + oov(null)
+  HU = HU,
+  numClasses = 2,
 
   batSize = batSize,
   maxEp = 40,
@@ -50,6 +46,8 @@ local opt = {
   paramInitBound = 0.05,
   printFreq = printFreq,
   evalFreq = evalFreq, -- every #epoches
+  showEpTime = true,
+  showIterTime = true,
 
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 }
