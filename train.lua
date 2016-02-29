@@ -227,7 +227,7 @@ this.main = function (opt)
         timeIterData = timeIterData + timeData
       end
       -----------------------------------------------------
-      curBatSize = inputs:size(1)
+      curBatSize = opt.batSize -- TODO: what if variable batch?
 
       -- fprop
       local outputs = md:forward(inputs)

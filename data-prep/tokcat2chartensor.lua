@@ -46,26 +46,25 @@ local function line_to_tensor(line, vocab)
 
     local xx = {}
     local numoov = 0
-    local function insert_xx (c) -- insert char + SPACE
-        table.insert(xx, vocab[c])
-        table.insert(xx, vocab[' '])
-    end
 
     for i = 1, #words do
         local word = words[i]
 
         if #word == 0 then -- null word, replace with symbol + SPACE
-            insert_xx(CHAR_FILL)
+            table.insert(xx, vocab[CHAR_FILL])
+            table.insert(xx, vocab[' '])
         else -- check the word
-            for j = 1, #word do
+            for j = 1, #word do -- insert char by char
                 local c = word:sub(j,j)
                 if vocab[c] then -- in vocab
-                    insert_xx(c)
-                else -- oov, always index 1
-                    insert_xx(CHAR_FILL)
+                    table.insert(xx, vocab[c])
+                else -- oov, always fill with char_fill
+                    table.insert(xx, vocab[CHAR_FILL])
                     numoov = numoov + 1
                 end
             end -- for j
+
+            table.insert(xx, vocab[' ']) -- ended with SPACE
         end -- if #word == 0
     end -- for i
 
