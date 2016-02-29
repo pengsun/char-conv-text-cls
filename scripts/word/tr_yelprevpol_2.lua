@@ -23,7 +23,7 @@ local trsize = 560*1000
 local itPerEp = math.floor(trsize/batSize)
 local printFreq = math.ceil( 0.021 * itPerEp )
 --local printFreq = 1
-local evalFreq = 3 * itPerEp -- every #epoches
+local evalFreq = 1 * itPerEp -- every #epoches
 
 local opt = {
   mdPath = path.join('net', 'word', netname .. '.lua'),
@@ -42,7 +42,7 @@ local opt = {
   numClasses = 2, -- #classes
 
   batSize = batSize,
-  maxEp = 30,
+  maxEp = 20,
 
   paramInitBound = 0.05,
   printFreq = printFreq,

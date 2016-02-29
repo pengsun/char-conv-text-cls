@@ -13,7 +13,7 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv2maxcv3max-o'
+local netname = 'cv2maxcv3maxcv4max-o'
 local HU = 500 -- #hidden units
 local seqLength = 128 -- #words per doc
 
@@ -29,8 +29,9 @@ local opt = {
   mdPath = path.join('net', 'word', netname .. '.lua'),
 
   dataPath = 'data/dbpedia-fixtail-word.lua',
-  envSavePath = 'cv/dbpedia-fixtail-word',
+  dataMask = {tr=true, val=true, te=false},
 
+  envSavePath = 'cv/dbpedia-fixtail-word',
   envSavePrefix = 'M' .. seqLength .. '-' ..
           'HU' .. HU .. '-' ..
           netname,
