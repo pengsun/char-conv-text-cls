@@ -176,7 +176,7 @@ this.main = function (opt)
   -- iterate over batches
   for i = begIt+1, maxIt do
     local epoch = i/nb
-    local timeIter
+    local timeIter, timeIterData = 0, 0
     local curBatSize
 
     local function eval_dataset(loader)
@@ -218,7 +218,15 @@ this.main = function (opt)
       gradParams:zero()
 
       -- get data batch
+      local timeData
+      -----------------------------------------------------
+      if opt.showIterTime then timeData = torch.tic() end
       local inputs, targets = loaderTr:next_batch()
+      if opt.showIterTime then
+        timeData = torch.toc(timeData)
+        timeIterData = timeIterData + timeData
+      end
+      -----------------------------------------------------
       curBatSize = inputs:size(1)
 
       -- fprop
@@ -239,11 +247,11 @@ this.main = function (opt)
       if opt.showIterTime == true then
         local tmpl = '%d/%d (epoch %.3f), ' ..
           'train_loss = %6.8f, grad/param norm = %6.4e, ' ..
-          'speed = %5.1f/s, %5.3fs/iter'
+          'speed = %5.1f/s, %5.3fs/iter, data_load = %4.2f%%'
         print(string.format(tmpl,
           i, maxIt, epoch,
           lossesTr[i], gradParams:norm() / params:norm(),
-          curBatSize/ timeIter, timeIter)
+          curBatSize/ timeIter, timeIter, timeIterData/timeIter)
         )
       else
         local tmpl = '%d/%d (epoch %.3f), ' ..

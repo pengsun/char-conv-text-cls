@@ -23,6 +23,7 @@ function LoaderTCFixTailCharWordwin:__init(ffnData, batSize, seqLength, winSize,
 
 	-- internal states
 	self.charFill = arg.charFill or error('no arg.charFill')
+	self.charWordDlm = arg.charWordDlm or error('no arg.charWordDlm')
 
 	--require'mobdebug'.start()
 	-- data layout
@@ -81,7 +82,7 @@ function LoaderTCFixTailCharWordwin:next_batch()
 
 		self:fill_fixlen_char_wordwin(
 			self.x[iOrig], self.ptrWords[iOrig],
-			xx[i], self.numSent, self.seqLength
+			xx[i], self.seqLength, self.winSize
 		)
 		yy[i] = self.y[iOrig]
 	end
@@ -162,7 +163,7 @@ function LoaderTCFixTailCharWordwin:make_ptr_to_word_doc(xx)
 	-- xx: [n] tensor, chars in current doc
 	local ptrWords = {} -- {M} word center for current doc
 
-	-- closure, will update the iSentBeg, iSentEnd when called
+	-- closure, will update the iWordBeg, iWordEnd when called
 	local iWordBeg, iWordEnd = 0, 0
 	local function next_word_position()
 		local flagInsideNewWord = false
@@ -194,7 +195,7 @@ function LoaderTCFixTailCharWordwin:make_ptr_to_word_doc(xx)
 		end -- while
 	end
 
-	-- find all sentences
+	-- find all words
 	while true do
 		next_word_position()
 		if iWordBeg and iWordEnd then
