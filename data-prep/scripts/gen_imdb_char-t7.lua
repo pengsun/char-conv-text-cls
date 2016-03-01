@@ -5,7 +5,8 @@ local ut = require'util.misc'
 local numClasses = 2
 
 --local dataPath = '/mnt/data/datasets/Text/imdb' -- deepml
-local dataPath = '/home/ps/data/datasets/Text/imdb' -- local
+local dataPath = '/data/datasets/Text/imdb' -- deepml2
+--local dataPath = '/home/ps/data/datasets/Text/imdb' -- local
 
 local dataPathTokCat = dataPath
 local dataPathOut = path.join(dataPath, 'char-t7')
