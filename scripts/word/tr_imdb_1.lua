@@ -13,14 +13,14 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'tieV1cv2maxcv3maxcv4max-o'
+local netname = 'cv2ap2-cv2max-o'
 local batSize = 250
 local seqLength = 475
 local HU = 500
 
 local trsize = 25*1000
 local itPerEp = math.floor(trsize/batSize)
-local printFreq = math.ceil( 0.031 * itPerEp )
+local printFreq = math.ceil( 0.061 * itPerEp )
 --local printFreq = 1
 local evalFreq = 3 * itPerEp -- every #epoches
 

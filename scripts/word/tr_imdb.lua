@@ -13,14 +13,14 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv3max-o'
+local netname = 'cv2max-o'
 local batSize = 250
 local seqLength = 475
 local HU = 500
 
 local trsize = 25*1000
 local itPerEp = math.floor(trsize/batSize)
-local printFreq = math.ceil( 0.031 * itPerEp )
+local printFreq = math.ceil( 0.061 * itPerEp )
 --local printFreq = 1
 local evalFreq = 3 * itPerEp -- every #epoches
 
@@ -30,7 +30,7 @@ local opt = {
   dataPath = 'data/imdb-fixtail-word.lua',
   dataMask = {tr=true, val=true, te=false},
 
-  envSavePath = 'cv/imdb-fixtail-word',
+  envSavePath = 'cv/imdb-fixtail-word-tmp',
   envSavePrefix = 'M' .. seqLength .. '-' ..
           'HU' .. HU .. '-' ..
           netname,
@@ -41,7 +41,7 @@ local opt = {
   numClasses = 2,
 
   batSize = batSize,
-  maxEp = 40,
+  maxEp = 24,
 
   paramInitBound = 0.05,
   printFreq = printFreq,
