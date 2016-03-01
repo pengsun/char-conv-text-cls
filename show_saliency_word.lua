@@ -214,6 +214,7 @@ table, td {
             local tmpl = [[<td bgcolor="#%s">%s</td>]]
 
             local vv = math.abs(v)
+            vv = math.min(vv, 255)
             local str1 = ('%02x'):format(255-vv):upper()
             local str2 = ('%02x'):format(255-0.5*vv):upper()
             local str3 = 'FF'
