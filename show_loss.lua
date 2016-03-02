@@ -45,12 +45,14 @@ end
 ---[[]]
 require'onehot-temp-conv'
 local paths = {
-    path.join('cv','imdb-fixtail-word-transfer'),
-    --path.join('cv','imdb-fixtail-word'),
+    path.join('cv','imdb-fixtail-word-tmp'),
+    path.join('cv','imdb-fixtail-word-tmp'),
+    path.join('cv','imdb-fixtail-word-tmp'),
 }
 local names = {
-    "M475-HU500-pretr.cv2maxcv3max-o_epoch4.00_lossval0.2619_errval10.70",
-    --"M475-HU502-cv2max3max-o_epoch20.00_lossval0.2388",
+    "M475-HU500-cv2max-o_epoch24.00_lossval0.2757_errval8.81",
+    "M475-HU256-sup-cv2mp2-cv2max-o_epoch18.00_lossval1.9111_errval10.60",
+    "M475-HU500-supV2-cv2mp2-cv2max-o_epoch10.00_lossval1.2181_errval13.06",
 }
 
 

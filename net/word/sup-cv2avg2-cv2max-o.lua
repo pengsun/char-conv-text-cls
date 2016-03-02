@@ -23,7 +23,7 @@ this.main = function(opt)
         local md = nn.Sequential()
 
         -- B, HU, M-kH+1, 1
-        md:add( cudnn.SpatialMaxPooling(1, pool) )
+        md:add( cudnn.SpatialAveragePooling(1, pool) )
         -- B, HU, M', 1
         md:add( cudnn.SpatialConvolution(HU, HU, 1, kH) )
         md:add( cudnn.ReLU(true) )

@@ -26,7 +26,7 @@ this.main = function(opt)
         md:add( cudnn.SpatialMaxPooling(1, pool) )
         -- B, HU, M', 1
         md:add( cudnn.SpatialConvolution(HU, HU, 1, kH) )
-        md:add( cudnn.ReLU(true) )
+        md:add( cudnn.Tanh(true) )
         md:add( nn.Max(3) )
         -- B, HU, 1
         md:add( nn.Reshape(HU, true) )
@@ -64,12 +64,12 @@ this.main = function(opt)
 
     -- B, M (,V)
     md:add( nn.OneHotTemporalConvolution(V, HU, kH) )
-    md:add( nn.ReLU(true) )
-    -- B, M-kH+1, HUHU
+    md:add( nn.Tanh(true) )
+    -- B, M-kH+1, HU
     md:add( nn.Transpose({2,3}) )
-    -- B, HUHU, M-kH+1
+    -- B, HU, M-kH+1
     md:add( nn.Reshape(HU, M-kH+1, 1, true) )
-    -- B, HUHU, M-kH+1, 1
+    -- B, HU, M-kH+1, 1
     md:add(
         nn.ConcatTable()
         :add( get_branch1() )

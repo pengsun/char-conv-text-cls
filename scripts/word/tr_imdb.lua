@@ -42,7 +42,7 @@ local opt = {
     numClasses = 2,
 
     batSize = batSize,
-    maxEp = 24,
+    maxEp = 18,
     paramInitBound = 0.05,
 
     printFreq = printFreq,
