@@ -1,5 +1,6 @@
 require'nn'
 require'cudnn'
+require'fbcunn'
 require'onehot-temp-conv'
 
 --cudnn.fastest = true
@@ -15,17 +16,29 @@ this.main = function(opt)
     local HU = opt.HU or 190
 
     local kH = 2
-    local pool = 2
-    local Md = math.floor( (M-kH+1)/pool )
-    local Mdd = math.floor( (Md-kH+1)/pool )
+    local kpool = 2
+    local kpoolRatio = 0.5
+    local Md = math.max(
+        kpool,
+        math.floor( (M-kH+1)*kpoolRatio )
+    )
 
     local function get_branch2()
         local md = nn.Sequential()
 
-        -- B, HU, M-kH+1, 1
-        md:add( cudnn.SpatialMaxPooling(1, pool) )
+        -- B, M-kH+1, HU
+        md:add( nn.TemporalKMaxPooling(kpool, kpoolRatio) )
+        -- B, M', HU
+
+--        md:add( nn.TemporalConvolution(HU, HU, kH) )
+--        md:add( cudnn.ReLU(true) )
+--        md:add( nn.Max(2) )
+
+        md:add( nn.Transpose({2,3}) )
+        -- B, HU, M'
+        md:add( nn.Reshape(HU, Md, 1, true) )
         -- B, HU, M', 1
-        md:add( cudnn.SpatialConvolution(HU, HU, 1, kH) )
+        md:add( nn.SpatialConvolution(HU, HU, 1, kH) )
         md:add( cudnn.ReLU(true) )
         md:add( nn.Max(3) )
         -- B, HU, 1
@@ -44,10 +57,8 @@ this.main = function(opt)
     local function get_branch1()
         local md = nn.Sequential()
 
-        -- B, HU, M-kH+1, 1
-        md:add( nn.Max(3) )
-        -- B, HU, 1
-        md:add( nn.Reshape(HU, true) )
+        -- B, M-kH+1, HU
+        md:add( nn.Max(2) )
         md:add( nn.Dropout() )
         -- B, HU
 
@@ -65,11 +76,7 @@ this.main = function(opt)
     -- B, M (,V)
     md:add( nn.OneHotTemporalConvolution(V, HU, kH) )
     md:add( nn.ReLU(true) )
-    -- B, M-kH+1, HUHU
-    md:add( nn.Transpose({2,3}) )
-    -- B, HUHU, M-kH+1
-    md:add( nn.Reshape(HU, M-kH+1, 1, true) )
-    -- B, HUHU, M-kH+1, 1
+    -- B, M-kH+1, HU
     md:add(
         nn.ConcatTable()
         :add( get_branch1() )

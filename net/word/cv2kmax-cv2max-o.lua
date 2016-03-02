@@ -1,5 +1,6 @@
 require'nn'
 require'cudnn'
+require'fbcunn' -- nn.TemporalKMaxPooling
 require'onehot-temp-conv'
 
 --cudnn.fastest = true
@@ -14,29 +15,32 @@ this.main = function(opt)
     local M = opt.seqLength or 291
     local HU = opt.HU or 190
 
-    local HUHU = 200
-
     local kH = 2
     local pool = 2
-    local Md = math.floor( (M-kH+1)/pool )
+    local kpool = 10
+    local kpoolRatio = 0.5
+    local Md = math.max(
+        kpool,
+        math.floor( (M-kH+1)*kpoolRatio )
+    )
     local Mdd = math.floor( (Md-kH+1)/pool )
 
     local md = nn.Sequential()
 
     -- B, M (,V)
-    md:add( nn.OneHotTemporalConvolution(V, HUHU, kH) )
+    md:add( nn.OneHotTemporalConvolution(V, HU, kH) )
     md:add( nn.ReLU(true) )
-    -- B, M-kH+1, HUHU
-    md:add( nn.Transpose({2,3}) )
-    -- B, HUHU, M-kH+1
-    md:add( nn.Reshape(HUHU, M-kH+1, 1, true) )
-    -- B, HUHU, M-kH+1, 1
-    md:add( cudnn.SpatialAveragePooling(1, pool) )
+    -- B, M-kH+1, HU
+    md:add( nn.TemporalKMaxPooling(kpool, kpoolRatio) ) -- kpool or half the seq length
     md:add( nn.Dropout() )
-    -- B, HUHU, M', 1
+    -- B, M', HU
 
-    -- B, HUHU, M', 1
-    md:add( cudnn.SpatialConvolution(HUHU, HU, 1, kH) )
+    -- B, M', HU
+    md:add( nn.Transpose({2,3}) )
+    -- B, HU, M'
+    md:add( nn.Reshape(HU, Md, 1) )
+    -- B, HU, M', 1
+    md:add( cudnn.SpatialConvolution(HU, HU, 1, kH) )
     md:add( cudnn.ReLU(true) )
     -- B, HU, M'-kH+1, 1
     md:add( nn.Max(3) )

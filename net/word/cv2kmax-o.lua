@@ -1,5 +1,6 @@
 require'nn'
 require'cudnn'
+require'fbcunn' -- nn.TemporalKMaxPooling
 require'onehot-temp-conv'
 
 --cudnn.fastest = true
@@ -15,13 +16,22 @@ this.main = function(opt)
     local HU = opt.HU or 190
 
     local kH = 2
+    local pool = 2
+    local kpool = 10
+    local kpoolRatio = 0.5
+    local Md = math.max(
+        kpool,
+        math.floor( (M-kH+1)*kpoolRatio )
+    )
+    local Mdd = math.floor( (Md-kH+1)/pool )
 
     local md = nn.Sequential()
+
     -- B, M (,V)
     md:add( nn.OneHotTemporalConvolution(V, HU, kH) )
     md:add( nn.ReLU(true) )
     -- B, M-kH+1, HU
-    md:add( nn.TemporalMaxPooling(M-kH+1) )
+    md:add( nn.TemporalKMaxPooling(1) ) -- kpool or half the seq length
     md:add( nn.Dropout() )
     -- B, 1, HU
     md:add( nn.Reshape(HU, true) )
