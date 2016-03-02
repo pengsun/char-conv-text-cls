@@ -13,8 +13,8 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv3mp5-cv3mp5-avg-o'
-local HU = 256 -- #hidden units
+local netname = 'cv2mo5maxcv3mo5max-o'
+local HU = 500 -- #hidden units
 local seqLength = 125 -- #words per doc
 
 local batSize = 250
@@ -27,6 +27,7 @@ local evalFreq = 1 * itPerEp -- every #epoches
 
 local opt = {
   mdPath = path.join('net', 'word', netname .. '.lua'),
+  criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = 'data/yahoo-fixtail-word.lua',
   dataMask = {tr=true, val=true, te=false},
@@ -42,7 +43,7 @@ local opt = {
   numClasses = 10,
 
   batSize = batSize,
-  maxEp = 40,
+  maxEp = 30,
 
   paramInitBound = 0.05,
   printFreq = printFreq,
