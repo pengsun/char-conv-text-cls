@@ -301,7 +301,7 @@ this.main = function(opt)
         -- epoch begining
         if (i % nb) == 1 then
             if opt.showEpTime == true then
-                print(utmisc.get_current_time_str())
+                print("time now = " .. utmisc.get_current_time_str())
             end
 
             change_lr_when_available()

@@ -16,7 +16,7 @@ end
 local netname = 'cv2max-o'
 local batSize = 250
 local seqLength = 475
-local HU = 2
+local HU = 100
 
 local trsize = 25 * 1000
 local itPerEp = math.floor(trsize / batSize)
@@ -29,6 +29,11 @@ local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         netname
 
+local timenow = require'util.misc'.get_current_time_str()
+local logSavePath = path.join(envSavePath,
+    envSavePrefix ..'_' .. timenow .. '.log'
+)
+
 local opt = {
     mdPath = path.join('net', 'word', netname .. '.lua'),
     criPath = path.join('net', 'cri-nll-one' .. '.lua'),
@@ -40,7 +45,7 @@ local opt = {
     envSavePath = envSavePath,
     envSavePrefix = envSavePrefix,
 
-    logSavePath = path.join(envSavePath, envSavePrefix .. '.log'),
+    logSavePath = logSavePath,
 
     seqLength = seqLength,
     V = 30000 + 1, -- vocab + oov(null)

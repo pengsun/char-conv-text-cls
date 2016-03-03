@@ -4,7 +4,7 @@ local this = {}
 --- time
 this.get_current_time_str = function ()
     local now = os.date("*t")
-    local tmpl = "time now = %02d:%02d:%02d" .. ", " .. "%d/%d/%d"
+    local tmpl = "%02d:%02d:%02d" .. "@" .. "%d-%d-%d"
     return string.format(tmpl,
         now.hour, now.min, now.sec,
         now.month, now.day, now.year
