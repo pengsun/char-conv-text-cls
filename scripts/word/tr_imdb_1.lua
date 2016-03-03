@@ -13,7 +13,7 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv3mo5max-o'
+local netname = 'cv4mo5max-o'
 local batSize = 125
 local seqLength = 475
 local HU = 500

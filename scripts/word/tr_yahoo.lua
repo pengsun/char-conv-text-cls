@@ -13,8 +13,9 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv2mo5maxcv3mo5max-o'
+local netname = 'cv2momaxcv3momax-o'
 local HU = 500 -- #hidden units
+local MO = 2
 local seqLength = 125 -- #words per doc
 
 local batSize = 250
@@ -35,10 +36,12 @@ local opt = {
   envSavePath = 'cv/yahoo-fixtail-word',
   envSavePrefix = 'M' .. seqLength .. '-' ..
           'HU' .. HU .. '-' ..
+          'MO' .. MO .. '-' ..
           netname,
 
   seqLength = seqLength, -- #words per doc
   V = 30000 + 1, -- vocab + oov(null)
+  MO = MO,
   HU = HU, -- #hidden units
   numClasses = 10,
 

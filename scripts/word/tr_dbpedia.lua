@@ -13,9 +13,10 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local netname = 'cv2mo5maxcv3mo5max-o'
+local netname = 'cv2momaxcv3momax-o'
 local HU = 500 -- #hidden units
-local seqLength = 128 -- #words per doc
+local MO = 2
+local seqLength = 128 -- #words per docd
 
 local batSize = 250
 local trsize = 560*1000
@@ -26,30 +27,32 @@ local printFreq = math.ceil( 0.061 * itPerEp )
 local evalFreq = 1 * itPerEp -- every #epoches
 
 local opt = {
-  mdPath = path.join('net', 'word', netname .. '.lua'),
-  criPath = path.join('net', 'cri-nll-one' .. '.lua'),
+    mdPath = path.join('net', 'word', netname .. '.lua'),
+    criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
-  dataPath = 'data/dbpedia-fixtail-word.lua',
-  dataMask = {tr=true, val=true, te=false},
+    dataPath = 'data/dbpedia-fixtail-word.lua',
+    dataMask = {tr=true, val=true, te=false},
 
-  envSavePath = 'cv/dbpedia-fixtail-word',
-  envSavePrefix = 'M' .. seqLength .. '-' ..
+    envSavePath = 'cv/dbpedia-fixtail-word',
+    envSavePrefix = 'M' .. seqLength .. '-' ..
           'HU' .. HU .. '-' ..
+          'MO' .. MO .. '-' ..
           netname,
 
-  seqLength = seqLength, -- #words per doc
-  V = 30000 + 1, -- vocab + oov(null)
-  HU = HU, -- #hidden units
-  numClasses = 14,
+    seqLength = seqLength, -- #words per doc
+    V = 30000 + 1, -- vocab + oov(null)
+    HU = HU, -- #hidden units
+    MO = MO,
+    numClasses = 14,
 
-  batSize = batSize,
-  maxEp = 30,
+    batSize = batSize,
+    maxEp = 30,
 
-  paramInitBound = 0.05,
-  printFreq = printFreq,
-  evalFreq = evalFreq, -- every #epoches
+    paramInitBound = 0.05,
+    printFreq = printFreq,
+    evalFreq = evalFreq, -- every #epoches
 
-  lrEpCheckpoint = make_lrEpCheckpoint_small(),
+    lrEpCheckpoint = make_lrEpCheckpoint_small(),
 }
 
 opt.optimState = {

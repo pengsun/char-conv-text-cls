@@ -17,6 +17,8 @@ local netname = 'cv2max-o'
 local batSize = 250
 local seqLength = 475
 local HU = 100
+local KH = 5
+local MO = 5
 
 local trsize = 25 * 1000
 local itPerEp = math.floor(trsize / batSize)
@@ -24,9 +26,11 @@ local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
 local evalFreq = 3 * itPerEp -- every #epoches
 
-local envSavePath = 'cv/imdb-fixtail-word-tmp'
+local envSavePath = 'cv/imdb-fixtail-word'
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
+        'KH' .. KH .. '-' ..
+        'MO' .. MO .. '-' ..
         netname
 
 local timenow = require'util.misc'.get_current_time_str()
@@ -34,8 +38,8 @@ local logSavePath = path.join(envSavePath,
     envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local opt = {
-    mdPath = path.join('net', 'word', netname .. '.lua'),
+dofile('train.lua').main{
+    mdPath = path.join('net', 'word2', netname .. '.lua'),
     criPath = path.join('net', 'cri-nll-one' .. '.lua'),
     criWeight = {1.0, 1.0},
 
@@ -50,6 +54,8 @@ local opt = {
     seqLength = seqLength,
     V = 30000 + 1, -- vocab + oov(null)
     HU = HU,
+    MO = MO,
+    KH = KH,
     numClasses = 2,
 
     batSize = batSize,
@@ -62,11 +68,9 @@ local opt = {
     showEpTime = true,
     showIterTime = true,
     lrEpCheckpoint = make_lrEpCheckpoint_small(),
-}
 
-opt.optimState = {
-    learningRate = 2e-3,
-    alpha = 0.95, -- decay rate
+    optimState = {
+        learningRate = 2e-3,
+        alpha = 0.95, -- decay rate
+    },
 }
-
-dofile('train.lua').main(opt)
