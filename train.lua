@@ -118,6 +118,7 @@ this.main = function(opt)
             local envSavePath = opt.envSavePath
             local printFreq = opt.printFreq
             local evalFreq = opt.evalFreq
+            local logSavePath = opt.logSavePath
 
             opt = env.opt
             opt.maxEp = maxEp
@@ -125,6 +126,7 @@ this.main = function(opt)
             opt.envSavePath = envSavePath
             opt.printFreq = printFreq
             opt.evalFreq = evalFreq
+            opt.logSavePath = logSavePath
         end
 
         overwrite_opt()

@@ -69,16 +69,32 @@ this.get_print_screen_and_file = function (f_handle)
         old_print(...)
 
         -- then print to file
-        local str = ""
+        local function tbl_to_str(t, ident)
+            local str = ""
+            local ident = ident or ""
+
+            for k, v in pairs(t) do
+                local tp = torch.type(v)
+
+                str = str .. ident .. k .. ": "
+                if tp == 'table' then
+                    str = str .. "\n" .. tbl_to_str(v, '  ' .. ident)
+                elseif tp=='torch.FloatTensor' or tp=='torch.CudaTensor' or tp=='torch.LongTensor' or tp=='torch.DoubleTensor' then
+                    str = str .. tostring(tp)
+                else
+                    str = str .. tostring(v)
+                end
+                str = str .. "\n"
+            end
+            return str
+        end
+
+        local str
         for i, item in ipairs({...}) do
-            if item.__tostring__ then
-                str = item:__tostring__()
-            elseif torch.type(item) == 'table' then
-                str = pp.write(item)
-            elseif type(item) == 'string' then
-                str = item
+            if torch.type(item)=='table' then
+                str = tbl_to_str(item)
             else
-                str = "***something unknown***"
+                str = tostring(item)
             end
 
             f_handle:write(str .. "\n")
