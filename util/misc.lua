@@ -60,6 +60,32 @@ end
 this.cleanup_model = cleanup_model
 
 --- printing
+this.get_print_screen_and_file = function (f_handle)
+    local old_print = print
+    local pp = require'pl.pretty'
+
+    return function (...)
+        -- first print to screen
+        old_print(...)
+
+        -- then print to file
+        local str = ""
+        for i, item in ipairs({...}) do
+            if item.__tostring__ then
+                str = item:__tostring__()
+            elseif torch.type(item) == 'table' then
+                str = pp.write(item)
+            elseif type(item) == 'string' then
+                str = item
+            else
+                str = "***something unknown***"
+            end
+
+            f_handle:write(str .. "\n")
+        end
+    end
+end
+
 this.print_tensor_asrow = function(ten)
     local t = ten:reshape(ten:numel())
     for i = 1, t:numel() do

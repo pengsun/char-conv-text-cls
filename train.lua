@@ -22,7 +22,7 @@ local function init_env()
     return env
 end
 
-local function setup_global(opt)
+local function init_global(opt)
     -- gpu
     if opt.gpuId > 0 then
         require('cutorch').setDevice(opt.gpuId)
@@ -38,6 +38,10 @@ local function setup_global(opt)
             error("cannot create env saving path " .. opt.envSavePath .. " " .. info)
         end
     end
+
+    -- redirect print
+    local f = assert(io.open(opt.logSavePath, 'w')) -- fine to not close it
+    print = utmisc.get_print_screen_and_file(f)
 end
 
 local function get_dft_opt()
@@ -68,6 +72,8 @@ local function get_dft_opt()
     opt.envSavePath = 'cv/ptb'
     opt.envContinuePath = ''
 
+    opt.logSavePath = 'zzz.log'
+
     opt.V = 83
     opt.HU = 190
 
@@ -92,11 +98,13 @@ end
 local this = {}
 
 this.main = function(opt)
-    print('[options]')
+    -- parse option, do global settings
     opt = opt or {}
     opt = tablex.merge(get_dft_opt(), opt, true)
+    init_global(opt)
+
+    print('[options]')
     print(opt)
-    setup_global(opt)
 
     print('[training environment]')
     local env

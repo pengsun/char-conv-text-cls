@@ -24,6 +24,11 @@ local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
 local evalFreq = 3 * itPerEp -- every #epoches
 
+local envSavePath = 'cv/imdb-fixtail-word-tmp'
+local envSavePrefix = 'M' .. seqLength .. '-' ..
+        'HU' .. HU .. '-' ..
+        netname
+
 local opt = {
     mdPath = path.join('net', 'word', netname .. '.lua'),
     criPath = path.join('net', 'cri-nll-one' .. '.lua'),
@@ -32,10 +37,10 @@ local opt = {
     dataPath = 'data/imdb-fixtail-word.lua',
     dataMask = { tr = true, val = true, te = false },
 
-    envSavePath = 'cv/imdb-fixtail-word-tmp',
-    envSavePrefix = 'M' .. seqLength .. '-' ..
-            'HU' .. HU .. '-' ..
-            netname,
+    envSavePath = envSavePath,
+    envSavePrefix = envSavePrefix,
+
+    logSavePath = path.join(envSavePath, envSavePrefix .. '.log'),
 
     seqLength = seqLength,
     V = 30000 + 1, -- vocab + oov(null)
