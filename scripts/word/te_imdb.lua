@@ -2,7 +2,7 @@
 require'pl.path'
 
 require'onehot-temp-conv'
-local envFn = [[M475-HU500-KH5-cv-max-o_epoch21.00_lossval0.2959_errval8.61.t7]]
+local envFn = [[M475-HU500-KH3-MO5-cv-mo-max-o_epoch30.00_lossval0.2699_errval7.80.t7]]
 local envPath = 'cv/imdb-fixtail-word'
 local seqLength = 475
 
@@ -17,10 +17,10 @@ local outputs, targets = test.main{
 
     seqLength = seqLength,
     --batSize = 7,
-    batSize = 100,
+    batSize = 250,
 }
 
 -- save results
 test.save_miscls(outputs, targets,
-    {fnMisCls = path.join(envPath, 'M475-HU500-KH5-cv-max-o_epoch21.00-miscls.txt')}
+    {fnMisCls = path.join(envPath, 'M475-HU500-KH3-MO5-cv-mo-max-o_epoch30.00-miscls.txt')}
 )
