@@ -47,7 +47,7 @@ this.main = function(opt)
         -- B, M-kH+1, mo*HU
         md:add( nn.Reshape(1, M-kH+1, mo*HU, true) )
         -- B, 1, M-kH+1, mo*HU
-        md:add( cudnn.SpatialReplicatePadding(0,0,0,pad) )
+        md:add( nn.SpatialReplicationPadding(0,0,0,pad) )
         -- B, 1, M', mo*HU
         md:add( nn.Reshape(Md, mo*HU, 1, true) )
         -- B, M', mo*HU, 1
