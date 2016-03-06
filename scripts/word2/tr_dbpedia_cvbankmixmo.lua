@@ -17,31 +17,29 @@ local dataname = 'dbpedia-fixtail-word'
 local numClasses = 14
 local trsize = 560*1000
 
-local netname = 'cvbank-max-o'
+local netname = 'cvbank-mixmo-max-o'
 local seqLength = 128
 local HU = 500
-local KHKH = {2, 3, 4, 5}
-local KHSTR = ""
-for i = 1, #KHKH do
-  KHSTR = KHSTR .. "KH" .. KHKH[i]
-end
+local KHKH = {2, 3}
+local PADPAD = {0, 1}
+local MO = 5
+local envSavePath = path.join('cv', dataname .. '-tmp')
+local envSavePrefix = 'M' .. seqLength .. '-' ..
+        'HU' .. HU .. '-' ..
+        'KH' .. KHKH[1] .. 'KH' .. KHKH[2] .. '-' ..
+        'MO' .. MO .. '-' ..
+        netname
+local timenow = require'util.misc'.get_current_time_str()
+local logSavePath = path.join(envSavePath,
+  envSavePrefix ..'_' .. timenow .. '.log'
+)
 
-local batSize = 250
+local batSize = 100
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
 local evalFreq = 1 * itPerEp -- every #epoches
 
-local envSavePath = path.join('cv', dataname .. '-tmp')
-local envSavePrefix = 'M' .. seqLength .. '-' ..
-        'HU' .. HU .. '-' ..
-        KHSTR .. '-' ..
-        netname
-
-local timenow = require'util.misc'.get_current_time_str()
-local logSavePath = path.join(envSavePath,
-  envSavePrefix ..'_' .. timenow .. '.log'
-)
 
 dofile('train.lua').main{
   mdPath = path.join('net', 'word2', netname .. '.lua'),
@@ -59,6 +57,8 @@ dofile('train.lua').main{
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   KHKH = KHKH,
+  PADPAD = PADPAD,
+  MO = MO,
   numClasses = numClasses,
 
   batSize = batSize,

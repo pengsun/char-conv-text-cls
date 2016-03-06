@@ -27,7 +27,7 @@ local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
         netname
-local envSavePath = path.join('cv', dataname)
+local envSavePath = path.join('cv', dataname .. '-tmp')
 local timenow = require'util.misc'.get_current_time_str()
 local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'

@@ -13,12 +13,12 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'dbpedia-fixtail-word'
-local numClasses = 14
+local dataname = 'yelprevpol-fixtail-word'
+local numClasses = 2
 local trsize = 560*1000
 
 local netname = 'cvbank-max-o'
-local seqLength = 128
+local seqLength = 225
 local HU = 500
 local KHKH = {2, 3, 4, 5}
 local KHSTR = ""
