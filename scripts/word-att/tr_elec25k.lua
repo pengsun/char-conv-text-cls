@@ -13,12 +13,12 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'imdb-fixtail-word'
+local dataname = 'elec25k-fixtail-word'
 local numClasses = 2
 local trsize = 25*1000
 
 local netname = 'cv.ap-max-o'
-local seqLength = 475
+local seqLength = 375
 local HU = 500
 local KH = 3
 local CW = 9

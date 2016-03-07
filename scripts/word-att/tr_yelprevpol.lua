@@ -13,13 +13,13 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'imdb-fixtail-word'
+local dataname = 'yelprevpol-fixtail-word'
 local numClasses = 2
-local trsize = 25*1000
+local trsize = 560*1000
 
 local netname = 'cv.ap-max-o'
-local seqLength = 475
-local HU = 500
+local seqLength = 225
+local HU = 1000
 local KH = 3
 local CW = 9
 local envSavePath = path.join('cv', dataname .. '-att')
@@ -37,7 +37,7 @@ local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
-local evalFreq = 3 * itPerEp -- every #epoches
+local evalFreq = 1 * itPerEp -- every #epoches
 
 
 dofile('train.lua').main{
