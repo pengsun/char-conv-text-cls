@@ -13,18 +13,20 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'elec25k-fixtail-word'
+local dataname = 'imdb-fixtail-word'
 local numClasses = 2
 local trsize = 25*1000
 
-local netname = 'cv-max-o'
-local seqLength = 375
+local netname = 'cv.ap-max-o'
+local seqLength = 475
 local HU = 1000
 local KH = 3
-local envSavePath = path.join('cv', dataname)
+local CW = 9
+local envSavePath = path.join('cv', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
+        'CW' .. CW .. '-' ..
         netname
 local timenow = require'util.misc'.get_current_time_str()
 local logSavePath = path.join(envSavePath,
@@ -39,7 +41,7 @@ local evalFreq = 3 * itPerEp -- every #epoches
 
 
 dofile('train.lua').main{
-  mdPath = path.join('net', 'word2', netname .. '.lua'),
+  mdPath = path.join('net', 'word-att', netname .. '.lua'),
   criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = path.join('data', dataname .. '.lua'),
@@ -54,6 +56,7 @@ dofile('train.lua').main{
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   KH = KH,
+  CW = CW,
   numClasses = numClasses,
 
   batSize = batSize,
