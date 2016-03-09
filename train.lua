@@ -29,7 +29,12 @@ local function init_global(opt)
     end
 
     -- random number seed
-    torch.manualSeed(opt.seed or 123)
+    local seed = opt.seed or 123
+    torch.manualSeed(seed)
+    if opt.gpuId > 0 then
+        cutorch.manualSeedAll(seed)
+    end
+    math.randomseed(seed)
 
     -- ensure environment saving path
     if not path.isdir(opt.envSavePath) then
