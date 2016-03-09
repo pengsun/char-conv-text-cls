@@ -9,9 +9,7 @@ local this = {}
 this.main = function(opt)
     local opt = opt or {}
     local K = opt.numClasses or 2 -- #classes
-    local B = opt.batSize or 16 -- batch size
     local V = opt.V or 300 -- vocabulary/embedding size
-    local M = opt.seqLength or 291
     local HU = opt.HU or 190
     local KH = opt.KH or error('no opt.kH')
     local CW = opt.CW or error('no opt.CW')
@@ -41,9 +39,9 @@ this.main = function(opt)
         -- B, M (,V)
         md:add( nn.OneHotTemporalConvolution(V, 1, 1) )
         -- B, M, 1
-        md:add( nn.Reshape(1, M, 1, true) )
+        md:add( nn.Unsqueeze(1, 2) )
         -- B, 1, M, 1
-        md:add( cudnn.SpatialAveragePooling(1, cw, 1,stride, 0,pad) )
+        md:add( cudnn.SpatialAveragePooling(1,cw, 1,stride, 0,pad) )
         md:add( cudnn.Sigmoid() )
         -- B, 1, M, 1
         md:add( nn.Squeeze() )
@@ -86,8 +84,7 @@ this.main = function(opt)
     reinit_params(md)
 
     local function md_reset(md, arg)
-        local newM = arg.seqLength or error('no seqLength')
-        assert(newM==M, "inconsisten seq length")
+        -- fine to do nothing
     end
 
     return md, md_reset
