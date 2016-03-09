@@ -21,7 +21,7 @@ local netname = 'cv-max-o'
 local seqLength = 375
 local HU = 1000
 local KH = 3
-local envSavePath = path.join('cv', dataname)
+local envSavePath = path.join('cv', dataname .. '-tmp')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
@@ -35,7 +35,7 @@ local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
-local evalFreq = 3 * itPerEp -- every #epoches
+local evalFreq = 1 * itPerEp -- every #epoches
 
 
 dofile('train.lua').main{
