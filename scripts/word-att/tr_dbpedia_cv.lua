@@ -19,7 +19,7 @@ local trsize = 560*1000
 
 local netname = 'cv.ap-max-o'
 local seqLength = 128
-local HU = 1000
+local HU = 500
 local KH = 3
 local CW = 9
 local envSavePath = path.join('cv', dataname .. '-att')
@@ -60,7 +60,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 30,
+  maxEp = 18,
   paramInitBound = 0.05,
 
   printFreq = printFreq,

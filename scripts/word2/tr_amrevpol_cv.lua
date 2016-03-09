@@ -19,7 +19,7 @@ local trsize = 3600*1000
 
 local netname = 'cv-max-o'
 local seqLength = 225
-local HU = 1000
+local HU = 500
 local KH = 3
 
 local batSize = 250
