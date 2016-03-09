@@ -13,9 +13,9 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'amrevpol-fixtail-word'
-local numClasses = 2
-local trsize = 3600*1000
+local dataname = 'amrevfull-fixtail-word'
+local numClasses = 5
+local trsize = 3000*1000
 
 local netname = 'cv.ap-max-o'
 local seqLength = 225
@@ -60,7 +60,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 30,
+  maxEp = 18,
   paramInitBound = 0.05,
 
   printFreq = printFreq,
