@@ -17,7 +17,7 @@ local dataname = 'elec25k-fixtail-word'
 local numClasses = 2
 local trsize = 25*1000
 
-local netname = 'cv.ap-max-o'
+local netname = 'cv-avg-max-o'
 local seqLength = 375
 local HU = 1000
 local KH = 3

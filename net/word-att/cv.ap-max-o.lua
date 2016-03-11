@@ -44,7 +44,9 @@ this.main = function(opt)
         md:add( cudnn.SpatialAveragePooling(1,cw, 1,stride, 0,pad) )
         md:add( cudnn.Sigmoid() )
         -- B, 1, M, 1
-        md:add( nn.Squeeze() )
+        md:add( nn.Squeeze(1, 3) )
+        -- B, M, 1
+        md:add( nn.Squeeze(2, 2) )
         -- B, M
         md:add( nn.Replicate(HU, 3) )
         -- B, M, HU
