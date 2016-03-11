@@ -59,9 +59,9 @@ this.main = function(opt)
         -- B, M (,V)
         md:add( nn.OneHotTemporalConvolution(V, 1, 1) )
         -- B, M, 1
-        md:add( nn.Reshape(1, M, 1, true) )
+        md:add( nn.Unsqueeze(2) )
         -- B, 1, M, 1
-        md:add( cudnn.SpatialAveragePooling(1, cw, 1,stride, 0,pad) )
+        md:add( cudnn.SpatialAveragePooling(1,cw, 1,stride, 0,pad) )
         md:add( cudnn.Sigmoid() )
         -- B, 1, M, 1
         md:add( nn.Squeeze() )
