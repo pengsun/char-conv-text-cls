@@ -2,11 +2,14 @@
 require'pl.path'
 
 require'onehot-temp-conv'
-local envFn = [[M475-HU502-cv2max3max-o_epoch20.00_lossval0.2388.t7]]
-local envPath = 'cv/imdb-fixtail-word'
+local envFn = [[M475-HU1000-KH3-CW9-cv.ap-max-o_epoch27.00_lossval0.3008_errval7.74.t7]]
+local envPath = path.join('cv', 'imdb-fixtail-word-att')
 local seqLength = 475
 
-local opt = {
+-- test
+local test = dofile('test.lua')
+-- display results
+local outputs, targets = test.main{
     dataPath = 'data/imdb-fixtail-word.lua',
     dataMask = {tr=false, val=false, te=true},
 
@@ -14,8 +17,9 @@ local opt = {
 
     seqLength = seqLength,
     --batSize = 7,
-    batSize = 250,
+    batSize = 100,
 }
-
-local test = dofile('test.lua')
-test.main(opt)
+-- save results
+test.save_miscls(outputs, targets,
+    {fnMisCls = path.join(envPath, 'M475-HU1000-KH3-CW9-cv.ap-max-o_epoch27.00-miscls.txt')}
+)
