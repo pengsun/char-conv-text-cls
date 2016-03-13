@@ -72,7 +72,6 @@ local function normalize_score(s, maxTarVal)
     end
 
     s = s:floor():long()
-    return s
 end
 
 local function make_gradOutputs(outputs, iclass)
@@ -150,6 +149,19 @@ local function calc_saliency(md, x, iclass, opt)
     return g, outputs
 end
 
+-- tokens salieancy rank
+local function get_topk(tokens, scores, k)
+    local dim, dir, sort = 1, true, true
+    local s, ind = scores:view(-1):topk(k, dim,dir,sort)
+    local t = {}
+    for i = 1, ind:numel() do
+        local ii = ind[i]
+        table.insert(t, tokens[ii])
+    end
+    assert(#t == s:numel())
+    return t, s -- topk tokens, scores
+end
+
 -- renderer
 local function render_print(tokens, s)
     local function words_saliency_to_str(words, s)
@@ -164,15 +176,12 @@ local function render_print(tokens, s)
         return str
     end
 
-    local maxTarVal = 9
-    s = normalize_score(s,maxTarVal)
-
     local str = words_saliency_to_str(tokens, s)
     print("\n")
     print(str)
 end
 
-local function render_html(words, s)
+local function render_html(words, s, numCol)
     local function words_saliency_to_htmlstr(words, s)
         local function wordval_to_item(word, v)
             local tmpl = [[<td style="color:#%s0000">%s</td>]]
@@ -240,7 +249,7 @@ table, td {
         end
 
         local content = ""
-        local numCol = 7
+        local numCol = numCol or 7
         local numRow = math.ceil(#words/numCol)
         for i = 1, numRow do
             local ibeg = numCol*(i-1) + 1
@@ -256,9 +265,6 @@ table, td {
 
     s = s:view(-1) -- vectorized
     assert(#words == s:numel())
-
-    local maxTarVal = 255
-    s = normalize_score(s, maxTarVal)
 
     local str = words_saliency_to_htmlstrtable(words, s)
     file = require'pl.file'
@@ -332,13 +338,37 @@ this.main = function(opt)
 
     --- render the sailiency map
     if opt.renderer == 'print' then
+        local maxTarVal = 9
+        normalize_score(s, maxTarVal)
+
         render_print(tokens, s)
     elseif opt.renderer == 'html' then
+        local maxTarVal = 255
+        normalize_score(s, maxTarVal)
+
         render_html(tokens, s)
     else
         error('unknown renderer ' .. opt.renderer)
     end
 
+    -- top k tokens
+    local K = 10
+    local tt, ss = get_topk(tokens, s, K)
+    render_html(tt, ss, 1)
+
+--    print('words saliency:')
+--    for i = 1, #tt do
+--        print(tt[i] .. '  ' .. ss[i])
+--    end
+
 end
+
+this.load_data = load_data
+this.load_md = load_md
+this.tensor_to_tokens = tensor_to_tokens
+this.get_data_batch = get_data_batch
+
+this.render_print = render_print
+this.render_html = render_html
 
 return this
