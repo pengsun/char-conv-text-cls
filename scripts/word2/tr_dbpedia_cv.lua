@@ -21,13 +21,13 @@ local trsize = 560*1000
 -- model
 local netname = 'cv-max-o'
 local seqLength = 128
-local HU = 500
+local HU = 1000
 local KH = 3
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
         netname
-local envSavePath = path.join('cv', dataname .. '-tmp')
+local envSavePath = path.join('cv', dataname)
 local timenow = require'util.misc'.get_current_time_str()
 local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'

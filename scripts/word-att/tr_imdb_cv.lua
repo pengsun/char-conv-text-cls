@@ -17,11 +17,11 @@ local dataname = 'imdb-fixtail-word'
 local numClasses = 2
 local trsize = 25*1000
 
-local netname = 'cv-avg-max-o'
+local netname = 'cv.ap-max-o'
 local seqLength = 475
 local HU = 1000
 local KH = 3
-local CW = 9
+local CW = 3
 local envSavePath = path.join('cv', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..

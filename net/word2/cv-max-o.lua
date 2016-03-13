@@ -15,15 +15,20 @@ this.main = function(opt)
     local HU = opt.HU or 190
 
     local kH = opt.KH or error('no opt.KH')
+    local indUnknown = 1 -- for UNKNOWN token
+    local mconv = nn.OneHotTemporalConvolution(V, HU, kH)
+
 
     local md = nn.Sequential()
     -- B, M (,V)
-    md:add( nn.OneHotTemporalConvolution(V, HU, kH) )
-    md:add( nn.ReLU(true) )
+    md:add( mconv )
+    md:add( cudnn.ReLU(true) )
     -- B, M-kH+1, HU
-    md:add( nn.TemporalMaxPooling(M-kH+1) )
+    md:add( nn.Unsqueeze(1, 2) )
+    -- B, 1, M-kH+1, HU
+    md:add( cudnn.SpatialMaxPooling(1, M-kH+1) )
     md:add( nn.Dropout() )
-    -- B, 1, HU
+    -- B, 1, 1, HU
     md:add( nn.Reshape(HU, true) )
     -- B, HU
 
@@ -41,6 +46,9 @@ this.main = function(opt)
         params:uniform(-b,b)
     end
     reinit_params(md)
+
+    print('setting unknown index ' .. indUnknown)
+    mconv:setPadding(indUnknown):zeroPaddingWeight()
 
     local function md_reset(md, arg)
         local newM = arg.seqLength or error('no seqLength')

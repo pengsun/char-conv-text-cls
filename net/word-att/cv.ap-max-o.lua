@@ -14,10 +14,14 @@ this.main = function(opt)
     local KH = opt.KH or error('no opt.kH')
     local CW = opt.CW or error('no opt.CW')
 
+    local indUnknown = 1
+    local mconv = nn.OneHotTemporalConvolution(V, HU, KH)
+    local mcontrol = nn.OneHotTemporalConvolution(V, 1, 1)
+
     local function make_cv(kH)
         local md = nn.Sequential()
         -- B, M (,V)
-        md:add( nn.OneHotTemporalConvolution(V, HU, kH) )
+        md:add( mconv )
         -- B, M-kH+1, HU
         md:add( nn.Padding(2, kH-1) )
         -- B, M, HU
@@ -37,7 +41,7 @@ this.main = function(opt)
 
         local md = nn.Sequential()
         -- B, M (,V)
-        md:add( nn.OneHotTemporalConvolution(V, 1, 1) )
+        md:add( mcontrol )
         -- B, M, 1
         md:add( nn.Unsqueeze(1, 2) )
         -- B, 1, M, 1
@@ -84,6 +88,10 @@ this.main = function(opt)
         params:uniform(-b,b)
     end
     reinit_params(md)
+
+    print('setting unknown token index')
+    mconv:setPadding(indUnknown):zeroPaddingWeight()
+    mcontrol:setPadding(indUnknown):zeroPaddingWeight()
 
     local function md_reset(md, arg)
         -- fine to do nothing

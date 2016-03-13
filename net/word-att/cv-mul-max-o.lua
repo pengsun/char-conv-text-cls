@@ -20,13 +20,15 @@ this.main = function(opt)
     local md = nn.Sequential()
     -- B, M (,V)
     md:add( nn.OneHotTemporalConvolution(V, HU, kH) )
-    md:add( nn.ReLU(true) )
+    md:add( cudnn.ReLU(true) )
     -- B, M-kH+1, HU
     md:add( nn.MulConstant(0.5, true) )
     -- B, M-kH+1, HU
-    md:add( nn.TemporalMaxPooling(M-kH+1) )
+    md:add( nn.Unsqueeze(1, 2) )
+    -- B, 1, M-kH+1, HU
+    md:add( cudnn.SpatialMaxPooling(1, M-kH+1) )
     md:add( nn.Dropout() )
-    -- B, 1, HU
+    -- B, 1, 1, HU
     md:add( nn.Reshape(HU, true) )
     -- B, HU
 

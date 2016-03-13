@@ -19,7 +19,7 @@ local trsize = 560*1000
 
 local netname = 'cv-max-o'
 local seqLength = 225
-local HU = 500
+local HU = 1000
 local KH = 3
 local envSavePath = path.join('cv', dataname)
 local envSavePrefix = 'M' .. seqLength .. '-' ..
