@@ -96,7 +96,8 @@ this.main = function(opt)
 
     --- render the sailiency map
     if opt.renderer == 'print' then
-        local rs = normalize_score(s)
+        --local rs = normalize_score(s)
+        rs = s
         rs = rs:mul(100):round()
         sa.render_print(tokens, rs)
     elseif opt.renderer == 'html' then
