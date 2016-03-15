@@ -57,7 +57,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 18,
+  maxEp = 10,
   paramInitBound = 0.05,
 
   printFreq = printFreq,

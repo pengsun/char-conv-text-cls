@@ -21,7 +21,7 @@ local netname = 'cv.ap-max-o'
 local seqLength = 475
 local HU = 1000
 local KH = 3
-local CW = 3
+local CW = 9
 local envSavePath = path.join('cv', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..

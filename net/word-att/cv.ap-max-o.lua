@@ -89,9 +89,9 @@ this.main = function(opt)
     end
     reinit_params(md)
 
-    print('setting unknown token index')
-    mconv:setPadding(indUnknown):zeroPaddingWeight()
-    mcontrol:setPadding(indUnknown):zeroPaddingWeight()
+--    print('setting unknown token index')
+--    mconv:setPadding(indUnknown):zeroPaddingWeight()
+--    mcontrol:setPadding(indUnknown):zeroPaddingWeight()
 
     local function md_reset(md, arg)
         -- fine to do nothing

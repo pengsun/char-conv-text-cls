@@ -47,8 +47,8 @@ this.main = function(opt)
     end
     reinit_params(md)
 
-    print('setting unknown index ' .. indUnknown)
-    mconv:setPadding(indUnknown):zeroPaddingWeight()
+--    print('setting unknown index ' .. indUnknown)
+--    mconv:setPadding(indUnknown):zeroPaddingWeight()
 
     local function md_reset(md, arg)
         local newM = arg.seqLength or error('no seqLength')

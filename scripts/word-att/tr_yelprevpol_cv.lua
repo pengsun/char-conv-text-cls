@@ -19,7 +19,7 @@ local trsize = 560*1000
 
 local netname = 'cv.ap-max-o'
 local seqLength = 225
-local HU = 500
+local HU = 1000
 local KH = 3
 local CW = 9
 local envSavePath = path.join('cv', dataname .. '-att')
