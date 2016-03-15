@@ -19,6 +19,8 @@ function LoaderTCFixTailWord:__init(ffnData, batSize, seqLength, arg)
 	self.x = data.x
 	self.y = data.y
 	assert( #self.x == self.y:numel() )
+	self.xtype = self.x[1]:type()
+	self.ytype = self.y:type()
 
 	-- data layout
 	self.batSize = batSize or 500
@@ -65,8 +67,8 @@ end
 
 function LoaderTCFixTailWord:next_batch()
 	-- fetch the batch, X: size B x M guaranteed Y: size B
-	local xx = torch.LongTensor(self.batSize, self.seqLength):fill(self.WORD_FILL)
-	local yy = torch.LongTensor(self.batSize)
+	local xx = torch.Tensor():type(self.xtype):resize(self.batSize, self.seqLength):fill(self.WORD_FILL)
+	local yy = torch.Tensor():type(self.ytype):resize(self.batSize)
 
 	local ixBase = self.iBat * self.batSize
 	for i = 1, self.batSize do
