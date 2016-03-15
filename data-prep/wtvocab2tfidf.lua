@@ -18,7 +18,7 @@ local function update_vocab(vocab, str)
 end
 
 local function read_vocab(opt)
-    --require'mobdebug'.start()
+    require'mobdebug'.start()
     local vocab = {}
 
     -- unknown word: always 1
