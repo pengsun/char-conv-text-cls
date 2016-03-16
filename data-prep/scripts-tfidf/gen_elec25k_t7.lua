@@ -1,8 +1,8 @@
 require'pl.path'
 local ut = require'util.misc'
 
---local dataPath = '/mnt/data/datasets/Text/elec' -- deepml
-local dataPath = '/home/ps/data/datasets/Text/elec' -- local
+local dataPath = '/data/datasets/Text/elec' -- deepml
+--local dataPath = '/home/ps/data/datasets/Text/elec' -- local
 
 local dataPathWordT7 = path.join(dataPath, 'tr25k-word-t7')
 local dataPathTfidf = path.join(dataPath, 'tr25k-tfidf-t7')

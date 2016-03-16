@@ -13,12 +13,12 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'imdb-fixtail-table-word-wordtfidf'
+local dataname = 'elec25k-fixtail-table-word-wordtfidf'
 local numClasses = 2
 local trsize = 25*1000
 
 local netname = 'cv.tfidf-max-o'
-local seqLength = 475
+local seqLength = 375
 local HU = 1000
 local KH = 3
 local envSavePath = path.join('cv', dataname)
