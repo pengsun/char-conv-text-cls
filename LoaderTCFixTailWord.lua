@@ -4,7 +4,7 @@
 --   y: B
 -- where B = #docs, M_i = #words in doc_i
 -- guaranteed output data batch
---   xx: B, M (,V)
+--   xx: B, M
 --   yy: B
 --
 require'torch'
