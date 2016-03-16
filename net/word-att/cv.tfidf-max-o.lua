@@ -8,70 +8,60 @@ this.main = function(opt)
     -- option: common
     local opt = opt or {}
     local K = opt.numClasses or error('no numClasses') -- #classes
-    local B = opt.batSize or error('no batSize') -- batch size
     local V = opt.V or error('no V')
-    local C = opt.C or error('no C')
     local HU = opt.HU or error('no HU')
+    local KH = opt.KH or error('no opt.kH')
 
-    local kH = 3
-
-    local function create_md_one()
+    local function make_cv(KH)
         local md = nn.Sequential()
         -- B, M (,V)
-        md:add( nn.OneHotTemporalConvolution(V, HU, kH) )
-        -- B, M', HU
+        md:add( nn.OneHotTemporalConvolution(V, HU, KH) )
+        -- B, M-KH+1, HU
+        md:add( nn.Padding(2, KH-1) )
+        -- B, M, HU
+        md:add( cudnn.ReLU(true) )
+        -- B, M, HU
         return md
     end
 
-    local function create_md_two(opt)
-        local kW = 5
-
+    local function make_tfidf(opt)
         local md = nn.Sequential()
-        -- B, M, Q (,C)
-        md:add( OneHot(C) )
-        -- B, M, Q, C
-        md:add( nn.Transpose({3,4}, {2,3}) )
-        -- B, C, M, Q
-
-        -- B, C, M, Q
-        md:add( cudnn.SpatialConvolution(C, HU, kW, kH) )
-        -- B, HU, M', Q'
-        md:add( nn.Max(4) )
-        -- B, HU, M'
-        md:add( nn.Transpose({2,3}) )
-        -- B, M', HU
-
+        -- B, M
+        md:add( nn.Identity() )
+        -- B, M
+        md:add( nn.Replicate(HU, 3) )
+        -- B, M, HU
         return md
     end
 
     -- the sub nets
     local parNet = nn.ParallelTable()
-    parNet:add( create_md_one() )
-    parNet:add( create_md_two() )
+        :add( make_cv(KH) )
+        :add( make_tfidf() )
 
     -- net
     local md = nn.Sequential()
 
-    -- {B, M (,V)}, {B, M, Q (,C)}
+    -- {B, M (,V)}, {B, M (,V)}
     md:add(parNet)
-    -- {B, M', HU}, {B, M', HU}
-    md:add(nn.CAddTable())
-    -- B, M', HU
-    md:add(cudnn.ReLU(true))
-    md:add(nn.Max(2))
-    -- B, HU
-    md:add(nn.Dropout())
+    -- {B, M, HU}, {B, M, HU}
+    md:add( nn.CMulTable(3, 3) )
+    -- B, M, HU
+
+    -- B, M, HU
+    md:add( nn.Max(2) )
+    md:add( nn.Dropout() )
     -- B, HU
 
     -- B, HU
-    md:add(nn.Linear(HU, K))
+    md:add( nn.Linear(HU, K) )
     -- B, K
-    md:add(cudnn.LogSoftMax())
+    md:add( cudnn.LogSoftMax() )
     -- B, K
 
     local function reinit_params(md)
         local b = opt.paramInitBound or 0.08
-        print('reinit params uniform,  [-' .. b .. ', ' .. b .. ']')
+        print( ('reinit params uniform, [%4.3f, %4.3f]'):format(-b,b) )
 
         local params, _ = md:getParameters()
         params:uniform(-b,b)
@@ -79,8 +69,7 @@ this.main = function(opt)
     reinit_params(md)
 
     local function md_reset(md, arg)
-        local newM = arg.seqLength or error('no seqLength')
-        assert(newM==M, "inconsisten seq length")
+        -- fine to do nothing
     end
 
     return md, md_reset

@@ -1,21 +1,18 @@
 if not LoaderTCFixTailWord then
     require'LoaderTCFixTailWord'
 end
-if not LoaderTCFixTailCharWordwin then
-    require'LoaderTCFixTailCharWordwin'
-end
 if not LoaderTCTable then
     require'LoaderTCTable'
 end
 require'pl.path'
 
-local function ensure_num_words_match(lWord, lChar)
+local function ensure_num_words_match(l1, l2)
     print('ensuring #words match...')
-    local n = #lWord.x
-    assert(n == #lChar.x)
+    local n = #l1.x
+    assert(n == #l2.x)
     for i = 1, n do
-        local M1 = lWord.x[i]:numel()
-        local M2 = #lChar.ptrWords[i]
+        local M1 = l1.x[i]:numel()
+        local M2 = l2.x[i]:numel()
         assert(M1==M2, ("doc %d: %d vs %d"):format(i, M1, M2))
     end
 end
@@ -27,27 +24,25 @@ this.main = function (opt)
     local opt = opt or {}
     local batSize = opt.batSize or error('no opt.batSize')
     local seqLength = opt.seqLength or error('no opt.seqLength')
-    local winSize = opt.winSize or error('no opt.winSize')
     local dataMask = opt.dataMask or {tr=true,val=true,te=true}
 
     -- data path
-    local dataPathWord = "/data/datasets/Text/imdb/word-t7"
-    local dataPathChar = "/data/datasets/Text/imdb/char-t7"
-    --local dataPathWord = "/home/ps/data/datasets/Text/imdb/word-t7"
-    --local dataPathChar = "/home/ps/data/datasets/Text/imdb/char-t7"
+--    local dataPathWord = "/data/datasets/Text/imdb/word-t7"
+--    local dataPathTfidf = "/data/datasets/Text/imdb/tfidf-t7"
+
+    local dataPathWord = "/home/ps/data/datasets/Text/imdb/word-t7"
+    local dataPathTfidf = "/home/ps/data/datasets/Text/imdb/tfidf-t7"
 
     -- vocab word
     local vocabWord = torch.load(path.join(dataPathWord,'vocab.t7'))
     local unk = 1 -- vocab index for unknown word
     assert(vocabWord['<unknown>']==unk)
+
+    -- arg word
     local argWord = {wordFill = unk}
 
-    -- vocab char
-    local vocabChar = torch.load( path.join(dataPathChar, 'vocab.t7') )
-    local argChar = {
-        charFill = assert(vocabChar['_'], 'no UNDERLINE in vocab'),
-        charWordDlm = assert(vocabChar[' '], 'no SPACE in vocab'),
-    }
+    -- arg tfidf
+    local argTfidf = {wordFill = 0}
 
     -- tr, val, te data loader
     local tr, val, te
@@ -58,13 +53,13 @@ this.main = function (opt)
         local word = LoaderTCFixTailWord(path.join(dataPathWord, 'tr.t7'),
             batSize, seqLength, argWord
         )
-        -- char loader
-        local char = LoaderTCFixTailCharWordwin(path.join(dataPathChar, 'tr.t7'),
-            batSize, seqLength, winSize, argChar
+        -- tfidf loader
+        local tfidf = LoaderTCFixTailWord(path.join(dataPathTfidf, 'tr.t7'),
+            batSize, seqLength, argTfidf
         )
         -- table loader
-        ensure_num_words_match(word,char)
-        tr = LoaderTCTable(word, char)
+        ensure_num_words_match(word, tfidf)
+        tr = LoaderTCTable(word, tfidf)
         tr:set_order_rand()
         print(tr)
     end
@@ -75,13 +70,13 @@ this.main = function (opt)
         local word = LoaderTCFixTailWord(path.join(dataPathWord, 'te.t7'),
             batSize, seqLength, argWord
         )
-        -- char loader
-        local char = LoaderTCFixTailCharWordwin(path.join(dataPathChar, 'te.t7'),
-            batSize, seqLength, winSize, argChar
+        -- tfidf loader
+        local tfidf = LoaderTCFixTailWord(path.join(dataPathTfidf, 'te.t7'),
+            batSize, seqLength, argTfidf
         )
         -- table loader
-        ensure_num_words_match(word,char)
-        val = LoaderTCTable(word, char)
+        ensure_num_words_match(word, tfidf)
+        val = LoaderTCTable(word, tfidf)
         val:set_order_natural()
         print(val)
     end
@@ -92,18 +87,18 @@ this.main = function (opt)
         local word = LoaderTCFixTailWord(path.join(dataPathWord, 'te.t7'),
             batSize, seqLength, argWord
         )
-        -- char loader
-        local char = LoaderTCFixTailCharWordwin(path.join(dataPathChar, 'te.t7'),
-            batSize, seqLength, winSize, argChar
+        -- tfidf loader
+        local tfidf = LoaderTCFixTailWord(path.join(dataPathTfidf, 'te.t7'),
+            batSize, seqLength, argTfidf
         )
         -- table loader
-        ensure_num_words_match(word,char)
-        te = LoaderTCTable(word, char)
+        ensure_num_words_match(word, tfidf)
+        te = LoaderTCTable(word, tfidf)
         te:set_order_natural()
         print(te)
     end
 
-    return tr, val, te, vocabWord, vocabChar
+    return tr, val, te, vocabWord
 end
 
 return this

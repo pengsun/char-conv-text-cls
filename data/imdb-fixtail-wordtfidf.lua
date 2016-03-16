@@ -11,17 +11,12 @@ this.main = function (opt)
     opt.seqLength = opt.seqLength or 200
     local dataMask = opt.dataMask or {tr=true,val=true,te=true}
     --
-    --local dataPath = "/mnt/data/datasets/Text/imdb/word-t7"
-    --local dataPath = "/data/datasets/Text/imdb/word-t7"
-    local dataPath = "/home/ps/data/datasets/Text/imdb/word-t7"
-
-    -- vocab
-    local vocab = torch.load( path.join(dataPath, 'vocab.t7') )
-    local unk = 1 -- vocab index for unknown word
-    assert(vocab['<unknown>']==unk)
+    --local dataPath = "/mnt/data/datasets/Text/imdb/tfidf-t7"
+    --local dataPath = "/data/datasets/Text/imdb/tfidf-t7"
+    local dataPath = "/home/ps/data/datasets/Text/imdb/tfidf-t7"
 
     -- tr, val, te data loader
-    local arg = {wordFill = unk}
+    local arg = {wordFill = 0}
     local tr, val, te
 
     if dataMask.tr == true then
@@ -48,7 +43,7 @@ this.main = function (opt)
         print(te)
     end
 
-    return tr, val, te, vocab
+    return tr, val, te
 end
 
 return this
