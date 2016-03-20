@@ -14,7 +14,7 @@ this.main = function(opt)
     local M = opt.seqLength or 291
 
     local HU = opt.HU or error('no opt.HU')
-    assert(type(HU)=='table' and #HU == 3) -- 3 layers
+    assert(type(HU)=='table' and #HU == 4) -- 3 layers + 1 fc layer
 
     local kH = opt.KH or error('no opt.KH')
     local pool = 2
@@ -52,7 +52,13 @@ this.main = function(opt)
     -- B, HU3, 1
     md:add( nn.Squeeze(2, 2) )
     -- B, HU3
-    md:add( nn.Linear(HU[3], K) )
+    md:add( nn.Linear(HU[3], HU[4]) )
+    md:add( cudnn.ReLU(true) )
+    md:add( nn.Dropout() )
+    -- B, HU4
+
+    -- B, HU4
+    md:add( nn.Linear(HU[4], K) )
     -- B, K
     md:add(cudnn.LogSoftMax())
     -- B, K

@@ -17,9 +17,9 @@ local dataname = 'yelprevfull-fixtail-word'
 local numClasses = 5
 local trsize = 650*1000
 
-local netname = 'cvmp-cvmp-cvmax-o'
+local netname = 'cvmp-cvmp-cvmax-lin-o'
 local seqLength = 225
-local HU = {500, 250, 125}
+local HU = {500, 250, 200, 200}
 local KH = 3
 
 local batSize = 250
@@ -30,7 +30,7 @@ local evalFreq = 1 * itPerEp -- every #epoches
 
 local envSavePath = path.join('cv', dataname .. '-deep')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
-        'HU1' .. HU[1] .. 'HU2' .. HU[2] .. 'HU3' .. HU[3] .. '-' ..
+        'HU' .. HU[1] .. 'HU' .. HU[2] .. 'HU' .. HU[3] .. 'HU' .. HU[4] ..'-' ..
         'KH' .. KH .. '-' ..
         netname
 
