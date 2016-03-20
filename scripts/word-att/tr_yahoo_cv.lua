@@ -17,7 +17,7 @@ local dataname = 'yahoo-fixtail-word'
 local numClasses = 10
 local trsize = 1400*1000
 
-local netname = 'cv.ap-max-o'
+local netname = 'cv.apV2-max-o'
 local seqLength = 125
 local HU = 1000
 local KH = 3

@@ -17,7 +17,7 @@ local dataname = 'amrevfull-fixtail-word'
 local numClasses = 5
 local trsize = 3000*1000
 
-local netname = 'cv.ap-max-o'
+local netname = 'cv.apV2-max-o'
 local seqLength = 225
 local HU = 1000
 local KH = 3

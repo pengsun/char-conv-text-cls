@@ -17,7 +17,7 @@ local dataname = 'imdb-fixtail-word'
 local numClasses = 2
 local trsize = 25*1000
 
-local netname = 'cv.ap-max-o'
+local netname = 'cv.apV2-max-o'
 local seqLength = 475
 local HU = 1000
 local KH = 3

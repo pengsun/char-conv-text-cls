@@ -13,35 +13,34 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'elec25k-fixtail-word'
-local numClasses = 2
-local trsize = 25*1000
+local dataname = 'yelprevfull-fixtail-word'
+local numClasses = 5
+local trsize = 650*1000
 
-local netname = 'cv.apV2-max-o'
-local seqLength = 375
-local HU = 1000
+local netname = 'cvmp-cvmp-cvmax-o'
+local seqLength = 225
+local HU = {500, 250, 125}
 local KH = 3
-local CW = 9
-local envSavePath = path.join('cv', dataname .. '-att')
-local envSavePrefix = 'M' .. seqLength .. '-' ..
-        'HU' .. HU .. '-' ..
-        'KH' .. KH .. '-' ..
-        'CW' .. CW .. '-' ..
-        netname
-local timenow = require'util.misc'.get_current_time_str()
-local logSavePath = path.join(envSavePath,
-  envSavePrefix ..'_' .. timenow .. '.log'
-)
 
 local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
-local evalFreq = 3 * itPerEp -- every #epoches
+local evalFreq = 1 * itPerEp -- every #epoches
 
+local envSavePath = path.join('cv', dataname .. '-deep')
+local envSavePrefix = 'M' .. seqLength .. '-' ..
+        'HU1' .. HU[1] .. 'HU2' .. HU[2] .. 'HU3' .. HU[3] .. '-' ..
+        'KH' .. KH .. '-' ..
+        netname
+
+local timenow = require'util.misc'.get_current_time_str()
+local logSavePath = path.join(envSavePath,
+  envSavePrefix ..'_' .. timenow .. '.log'
+)
 
 dofile('train.lua').main{
-  mdPath = path.join('net', 'word-att', netname .. '.lua'),
+  mdPath = path.join('net', 'word-deep', netname .. '.lua'),
   criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = path.join('data', dataname .. '.lua'),
@@ -56,7 +55,6 @@ dofile('train.lua').main{
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   KH = KH,
-  CW = CW,
   numClasses = numClasses,
 
   batSize = batSize,

@@ -17,7 +17,7 @@ local dataname = 'dbpedia-fixtail-word'
 local numClasses = 14
 local trsize = 560*1000
 
-local netname = 'cv.ap-max-o'
+local netname = 'cv.apV2-max-o'
 local seqLength = 128
 local HU = 1000
 local KH = 3
