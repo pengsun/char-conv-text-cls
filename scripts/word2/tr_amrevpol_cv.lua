@@ -19,7 +19,7 @@ local trsize = 3600*1000
 
 local netname = 'cv-max-o'
 local seqLength = 225
-local HU = 1000
+local HU = 500
 local KH = 3
 
 local batSize = 250
@@ -58,7 +58,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 18,
+  maxEp = 5,
   paramInitBound = 0.05,
 
   printFreq = printFreq,

@@ -17,7 +17,7 @@ local dataname = 'amrevpol-fixtail-word'
 local numClasses = 2
 local trsize = 3600*1000
 
-local netname = 'cv.apV2-max-o'
+local netname = 'cv.apV3-max-o'
 local seqLength = 225
 local HU = 1000
 local KH = 3
@@ -60,7 +60,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 18,
+  maxEp = 5*3,
   paramInitBound = 0.05,
 
   printFreq = printFreq,

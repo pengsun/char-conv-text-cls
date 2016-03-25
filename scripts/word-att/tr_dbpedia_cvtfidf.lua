@@ -2,7 +2,7 @@
 require 'pl.path'
 
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 2e-3, 0.97
+  local baseRate, factor = 5e-3, 0.97
   local r = {}
   for i = 1, 10 do
     r[i] = baseRate
@@ -13,20 +13,18 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'yahoo-fixtail-word'
-local numClasses = 10
-local trsize = 1400*1000
+local dataname = 'elec25k-fixtail-table-word-wordtfidf'
+local numClasses = 2
+local trsize = 25*1000
 
-local netname = 'cv.apV3-max-o'
-local seqLength = 125
-local HU = 500
+local netname = 'cv.tfidf-max-o'
+local seqLength = 375
+local HU = 1000
 local KH = 3
-local CW = 9
-local envSavePath = path.join('cv', dataname .. '-att')
+local envSavePath = path.join('cv', dataname)
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
-        'CW' .. CW .. '-' ..
         netname
 local timenow = require'util.misc'.get_current_time_str()
 local logSavePath = path.join(envSavePath,
@@ -37,7 +35,7 @@ local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
-local evalFreq = 1 * itPerEp -- every #epoches
+local evalFreq = 3 * itPerEp -- every #epoches
 
 
 dofile('train.lua').main{
@@ -56,12 +54,11 @@ dofile('train.lua').main{
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   KH = KH,
-  CW = CW,
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 10,
-  paramInitBound = 0.05,
+  maxEp = 90,
+  paramInitBound = 0.02,
 
   printFreq = printFreq,
   evalFreq = evalFreq, -- every #epoches

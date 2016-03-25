@@ -17,31 +17,32 @@ local dataname = 'yahoo-fixtail-word'
 local numClasses = 10
 local trsize = 1400*1000
 
-local netname = 'cv.apV3-max-o'
+local netname = 'cv-ao-max-o'
 local seqLength = 125
 local HU = 500
 local KH = 3
-local CW = 9
-local envSavePath = path.join('cv', dataname .. '-att')
-local envSavePrefix = 'M' .. seqLength .. '-' ..
-        'HU' .. HU .. '-' ..
-        'KH' .. KH .. '-' ..
-        'CW' .. CW .. '-' ..
-        netname
-local timenow = require'util.misc'.get_current_time_str()
-local logSavePath = path.join(envSavePath,
-  envSavePrefix ..'_' .. timenow .. '.log'
-)
+local AO = 5
 
-local batSize = 250
+local batSize = 100
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
 local evalFreq = 1 * itPerEp -- every #epoches
 
+local envSavePath = path.join('cv', dataname)
+local envSavePrefix = 'M' .. seqLength .. '-' ..
+        'HU' .. HU .. '-' ..
+        'KH' .. KH .. '-' ..
+        'AO' .. AO .. '-' ..
+        netname
+
+local timenow = require'util.misc'.get_current_time_str()
+local logSavePath = path.join(envSavePath,
+  envSavePrefix ..'_' .. timenow .. '.log'
+)
 
 dofile('train.lua').main{
-  mdPath = path.join('net', 'word-att', netname .. '.lua'),
+  mdPath = path.join('net', 'word2', netname .. '.lua'),
   criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = path.join('data', dataname .. '.lua'),
@@ -56,7 +57,7 @@ dofile('train.lua').main{
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   KH = KH,
-  CW = CW,
+  AO = AO,
   numClasses = numClasses,
 
   batSize = batSize,

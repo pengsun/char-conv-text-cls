@@ -17,9 +17,9 @@ local dataname = 'yelprevpol-fixtail-word'
 local numClasses = 2
 local trsize = 560*1000
 
-local netname = 'cv.apV2-max-o'
+local netname = 'cv.apV4-max-o'
 local seqLength = 225
-local HU = 1000
+local HU = 500
 local KH = 3
 local CW = 9
 local envSavePath = path.join('cv', dataname .. '-att')

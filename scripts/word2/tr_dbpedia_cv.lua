@@ -21,7 +21,7 @@ local trsize = 560*1000
 -- model
 local netname = 'cv-max-o'
 local seqLength = 128
-local HU = 1000
+local HU = 500
 local KH = 3
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..

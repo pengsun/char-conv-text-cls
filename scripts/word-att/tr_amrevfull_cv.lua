@@ -17,9 +17,9 @@ local dataname = 'amrevfull-fixtail-word'
 local numClasses = 5
 local trsize = 3000*1000
 
-local netname = 'cv.apV2-max-o'
+local netname = 'cv.apV3-max-o'
 local seqLength = 225
-local HU = 1000
+local HU = 500
 local KH = 3
 local CW = 9
 local envSavePath = path.join('cv', dataname .. '-att')
@@ -60,7 +60,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 18,
+  maxEp = 10*3,
   paramInitBound = 0.05,
 
   printFreq = printFreq,

@@ -29,7 +29,7 @@ local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
 local evalFreq = 3 * itPerEp -- every #epoches
 
-local envSavePath = path.join('cv', dataname .. '-tmp')
+local envSavePath = path.join('cv', dataname)
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..

@@ -13,12 +13,12 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'yahoo-fixtail-word'
-local numClasses = 10
-local trsize = 1400*1000
+local dataname = 'yelprevfull-fixtail-word'
+local numClasses = 5
+local trsize = 650*1000
 
-local netname = 'cv.apV3-max-o'
-local seqLength = 125
+local netname = 'cv.apV4-max-o'
+local seqLength = 225
 local HU = 500
 local KH = 3
 local CW = 9
