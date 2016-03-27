@@ -27,8 +27,8 @@ this.main = function (opt)
     local dataMask = opt.dataMask or {tr=true,val=true,te=true}
 
     -- data path
-    local dataPathWord = "/data/datasets/Text/dbpedia/word-t7"
-    local dataPathTfidf = "/data/datasets/Text/dbpedia/tfidf-t7"
+    local dataPathWord = "/data/datasets/Text/yelp-review-polarity/word-t7"
+    local dataPathTfidf = "/data/datasets/Text/yelp-review-polarity/tfidf-t7"
 
     -- vocab word
     local vocabWord = torch.load(path.join(dataPathWord,'vocab.t7'))

@@ -13,12 +13,12 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'dbpedia-fixtail-table-word-wordtfidf'
-local numClasses = 14
-local trsize = 560*1000
+local dataname = 'yahoo-fixtail-table-word-wordtfidf'
+local numClasses = 10
+local trsize = 1400*1000
 
 local netname = 'cv.tfidf-max-o'
-local seqLength = 128
+local seqLength = 125
 local HU = 1000
 local KH = 3
 local envSavePath = path.join('cv', dataname)
@@ -57,7 +57,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 18,
+  maxEp = 10,
   paramInitBound = 0.05,
 
   printFreq = printFreq,
