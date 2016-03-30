@@ -13,18 +13,26 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
+local function khkh_to_str(khkh)
+  local KHSTR = ""
+  for i = 1, #khkh do
+    KHSTR = KHSTR .. "KH" .. khkh[i]
+  end
+  return KHSTR
+end
+
 local dataname = 'imdb-fixtail-word'
 local numClasses = 2
 local trsize = 25*1000
 
 local netname = 'cvbank-max-o'
 local seqLength = 475
-local HU = 250
-local KHKH = {2, 3}
+local HU = 100
+local KHKH = {2, 3, 4}
 local envSavePath = path.join('cv', dataname)
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
-        'KH' .. KHKH[1] .. 'KH' .. KHKH[2] .. '-' ..
+        khkh_to_str(KHKH) .. '-' ..
         netname
 local timenow = require'util.misc'.get_current_time_str()
 local logSavePath = path.join(envSavePath,

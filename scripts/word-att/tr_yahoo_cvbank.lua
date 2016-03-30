@@ -25,10 +25,10 @@ local dataname = 'yahoo-fixtail-word'
 local numClasses = 10
 local trsize = 1400*1000
 
-local netname = 'cvbank.ap-max-o'
+local netname = 'cvbank.apV4-max-o'
 local seqLength = 125
 local HU = 500
-local KHKH = {2, 3}
+local KHKH = {2, 3, 4}
 local CW = 9
 local envSavePath = path.join('cv', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..

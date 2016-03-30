@@ -25,10 +25,10 @@ local dataname = 'yelprevpol-fixtail-word'
 local numClasses = 2
 local trsize = 560*1000
 
-local netname = 'cvbank.ap-max-o'
+local netname = 'cvbank.apV4-max-o'
 local seqLength = 225
 local HU = 500
-local KHKH = {2, 3}
+local KHKH = {2, 3, 4}
 local CW = 9
 local envSavePath = path.join('cv', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
@@ -68,7 +68,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 30,
+  maxEp = 18,
   paramInitBound = 0.05,
 
   printFreq = printFreq,

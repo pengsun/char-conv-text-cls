@@ -21,20 +21,19 @@ local function khkh_to_str(khkh)
   return KHSTR
 end
 
-local dataname = 'dbpedia-fixtail-word'
-local numClasses = 14
-local trsize = 560*1000
+local dataname = 'imdb-fixtail-word'
+local numClasses = 2
+local trsize = 25*1000
 
 local netname = 'cvbank.apV4-max-o'
-local seqLength = 128
-local HU = 500
+local seqLength = 475
+local HU = 100
 local KHKH = {2, 3, 4}
 local CW = 9
-local envSavePath = path.join('cv', dataname .. '-att')
+local envSavePath = path.join('cv', dataname)
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         khkh_to_str(KHKH) .. '-' ..
-        'CW' .. CW .. '-' ..
         netname
 local timenow = require'util.misc'.get_current_time_str()
 local logSavePath = path.join(envSavePath,
@@ -45,7 +44,7 @@ local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
-local evalFreq = 1 * itPerEp -- every #epoches
+local evalFreq = 3 * itPerEp -- every #epoches
 
 
 dofile('train.lua').main{
@@ -68,7 +67,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 18,
+  maxEp = 30,
   paramInitBound = 0.05,
 
   printFreq = printFreq,
