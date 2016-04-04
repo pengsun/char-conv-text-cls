@@ -45,7 +45,7 @@ local function init_global(opt)
     end
 
     -- redirect print
-    local f = assert(io.open(opt.logSavePath, 'w')) -- fine to not close it
+    local f = assert(io.open(opt.logSavePath, 'w')) -- fine not to close it
     print = utmisc.get_print_screen_and_file(f)
 end
 
@@ -123,7 +123,6 @@ this.main = function(opt)
             local envSavePath = opt.envSavePath
             local printFreq = opt.printFreq
             local evalFreq = opt.evalFreq
-            local logSavePath = opt.logSavePath
 
             opt = env.opt
             opt.maxEp = maxEp
@@ -131,7 +130,6 @@ this.main = function(opt)
             opt.envSavePath = envSavePath
             opt.printFreq = printFreq
             opt.evalFreq = evalFreq
-            opt.logSavePath = logSavePath
         end
 
         overwrite_opt()
