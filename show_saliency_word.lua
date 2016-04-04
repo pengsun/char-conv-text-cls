@@ -346,7 +346,7 @@ this.main = function(opt)
         local maxTarVal = 255
         normalize_score(s, maxTarVal)
 
-        render_html(tokens, s)
+        render_html(tokens, s, opt.dispWidth)
     else
         error('unknown renderer ' .. opt.renderer)
     end
