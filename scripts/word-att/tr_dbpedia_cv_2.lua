@@ -22,7 +22,7 @@ local seqLength = 128
 local HU = 1000
 local KH = 3
 local CW = 9
-local envSavePath = path.join('cv', dataname .. '-att')
+local envSavePath = path.join('cv-backup-3-30-2016', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..

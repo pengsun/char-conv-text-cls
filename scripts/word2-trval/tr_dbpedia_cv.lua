@@ -13,27 +13,28 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'amrevpol-fixtail-word'
-local numClasses = 2
-local trsize = 3600*1000
+-- data
+local dataname = 'dbpedia-fixtail-word-trval'
+local numClasses = 14
+local trsize = 560*1000 * 0.9
 
-local netname = 'cv.apV4-max-o'
-local seqLength = 225
-local HU = 1500
+-- model
+local netname = 'cv-max-o'
+local seqLength = 128
+local HU = 1000
 local KH = 3
-local CW = 9
-local envSavePath = path.join('cv', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
-        'CW' .. CW .. '-' ..
         netname
+local envSavePath = path.join('cv-trval', dataname)
 local timenow = require'util.misc'.get_current_time_str()
 local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 100
+-- optim
+local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
@@ -41,7 +42,7 @@ local evalFreq = 1 * itPerEp -- every #epoches
 
 
 dofile('train.lua').main{
-  mdPath = path.join('net', 'word-att', netname .. '.lua'),
+  mdPath = path.join('net', 'word2', netname .. '.lua'),
   criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = path.join('data', dataname .. '.lua'),
@@ -56,11 +57,10 @@ dofile('train.lua').main{
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   KH = KH,
-  CW = CW,
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 20,
+  maxEp = 18,
   paramInitBound = 0.05,
 
   printFreq = printFreq,

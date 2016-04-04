@@ -6,8 +6,8 @@ local seed = 123
 torch.manualSeed(seed)
 math.randomseed(seed)
 
---local dataPath = '/mnt/data/datasets/Text/yahoo' -- deepml
-local dataPath = '/home/ps/data/datasets/Text/yahoo' -- local
+local dataPath = '/data/datasets/Text/yahoo-answers' -- deepml
+--local dataPath = '/home/ps/data/datasets/Text/yahoo-answers' -- local
 
 local dataPathT7In = path.join(dataPath, 'word-t7')
 local dataPathT7Out = dataPathT7In

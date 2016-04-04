@@ -13,27 +13,19 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local function khkh_to_str(khkh)
-  local KHSTR = ""
-  for i = 1, #khkh do
-    KHSTR = KHSTR .. "KH" .. khkh[i]
-  end
-  return KHSTR
-end
+local dataname = 'amrevfull-fixtail-word-trval'
+local numClasses = 5
+local trsize = 3000*1000 * 0.9
 
-local dataname = 'yahoo-fixtail-word'
-local numClasses = 10
-local trsize = 1400*1000
-
-local netname = 'cvbank.apV4-max-o'
-local seqLength = 125
-local HU = 500
-local KHKH = {2, 3, 4}
+local netname = 'cv.apV2-max-o'
+local seqLength = 225
+local HU = 1000
+local KH = 3
 local CW = 9
-local envSavePath = path.join('cv', dataname .. '-att')
+local envSavePath = path.join('cv-trval', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
-        khkh_to_str(KHKH) .. '-' ..
+        'KH' .. KH .. '-' ..
         'CW' .. CW .. '-' ..
         netname
 local timenow = require'util.misc'.get_current_time_str()
@@ -63,12 +55,12 @@ dofile('train.lua').main{
   seqLength = seqLength,
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
-  KHKH = KHKH,
+  KH = KH,
   CW = CW,
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 10,
+  maxEp = 15,
   paramInitBound = 0.05,
 
   printFreq = printFreq,

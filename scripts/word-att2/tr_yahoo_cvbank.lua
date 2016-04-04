@@ -13,19 +13,27 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'amrevpol-fixtail-word'
-local numClasses = 2
-local trsize = 3600*1000
+local function khkh_to_str(khkh)
+  local KHSTR = ""
+  for i = 1, #khkh do
+    KHSTR = KHSTR .. "KH" .. khkh[i]
+  end
+  return KHSTR
+end
 
-local netname = 'cv.apV4-max-o'
-local seqLength = 225
-local HU = 1500
-local KH = 3
+local dataname = 'yahoo-fixtail-word'
+local numClasses = 10
+local trsize = 1400*1000
+
+local netname = 'cvbank.ap-max-o'
+local seqLength = 125
+local HU = 500
+local KHKH = {2, 3, 4}
 local CW = 9
 local envSavePath = path.join('cv', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
-        'KH' .. KH .. '-' ..
+        khkh_to_str(KHKH) .. '-' ..
         'CW' .. CW .. '-' ..
         netname
 local timenow = require'util.misc'.get_current_time_str()
@@ -33,7 +41,7 @@ local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 100
+local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
@@ -55,12 +63,12 @@ dofile('train.lua').main{
   seqLength = seqLength,
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
-  KH = KH,
+  KHKH = KHKH,
   CW = CW,
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 20,
+  maxEp = 10,
   paramInitBound = 0.05,
 
   printFreq = printFreq,

@@ -13,16 +13,16 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'amrevpol-fixtail-word'
+local dataname = 'amrevpol-fixtail-word-trval'
 local numClasses = 2
-local trsize = 3600*1000
+local trsize = 3600*1000 * 0.9
 
-local netname = 'cv.apV4-max-o'
+local netname = 'cv.ap-max-o'
 local seqLength = 225
-local HU = 1500
+local HU = 1000
 local KH = 3
 local CW = 9
-local envSavePath = path.join('cv', dataname .. '-att')
+local envSavePath = path.join('cv-trval', dataname .. '-att')
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
@@ -33,7 +33,7 @@ local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 100
+local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1

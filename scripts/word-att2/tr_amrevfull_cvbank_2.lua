@@ -21,12 +21,12 @@ local function khkh_to_str(khkh)
   return KHSTR
 end
 
-local dataname = 'dbpedia-fixtail-word'
-local numClasses = 14
-local trsize = 560*1000
+local dataname = 'amrevfull-fixtail-word'
+local numClasses = 5
+local trsize = 3000*1000
 
-local netname = 'cvbank.apV4-max-o'
-local seqLength = 128
+local netname = 'cvbank.apV2-max-o'
+local seqLength = 225
 local HU = 500
 local KHKH = {2, 3, 4}
 local CW = 9
@@ -68,7 +68,7 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 18,
+  maxEp = 15,
   paramInitBound = 0.05,
 
   printFreq = printFreq,
