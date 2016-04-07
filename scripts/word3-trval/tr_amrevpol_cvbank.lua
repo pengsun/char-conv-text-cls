@@ -13,29 +13,38 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'elec25k-fixtail-word'
-local numClasses = 2
-local trsize = 25*1000
+local function khkh_to_str(khkh)
+  local KHSTR = ""
+  for i = 1, #khkh do
+    KHSTR = KHSTR .. "KH" .. khkh[i]
+  end
+  return KHSTR
+end
 
-local netname = 'cv-max-o'
-local seqLength = 375
+local dataname = 'amrevpol-fixtail-word-trval'
+local numClasses = 2
+local trsize = 3600*1000 * 0.9
+
+local netname = 'cvbank-max-o'
+local seqLength = 225
 local HU = 500
-local KH = 3
-local envSavePath = path.join('cv', dataname)
+local KHKH = {2, 3, 4 }
+
+local envSavePath = path.join('cv-trval', dataname)
 local envSavePrefix = 'M' .. seqLength .. '-' ..
         'HU' .. HU .. '-' ..
-        'KH' .. KH .. '-' ..
+        khkh_to_str(KHKH) .. '-' ..
         netname
 local timenow = require'util.misc'.get_current_time_str()
 local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 100
+local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
-local evalFreq = 3 * itPerEp -- every #epoches
+local evalFreq = 1 * itPerEp -- every #epoches
 
 
 dofile('train.lua').main{
@@ -53,11 +62,11 @@ dofile('train.lua').main{
   seqLength = seqLength,
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
-  KH = KH,
+  KHKH = KHKH,
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 30,
+  maxEp = 20,
   paramInitBound = 0.05,
 
   printFreq = printFreq,
