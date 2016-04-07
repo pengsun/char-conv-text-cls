@@ -14,9 +14,9 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'imdb-varlen-word'
+local dataname = 'yelprevpol-varlen-word'
 local numClasses = 2
-local trsize = 25*1000
+local trsize = 560*1000
 
 local netname = 'cv-max-o'
 local HU = 500
@@ -31,10 +31,10 @@ local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 50
+local batSize = 250
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
-local evalFreq = 3 * itPerEp -- every #epoches
+local evalFreq = 1 * itPerEp -- every #epoches
 
 dofile('train.lua').main{
   mdPath = path.join('net', 'word-varlen', netname .. '.lua'),

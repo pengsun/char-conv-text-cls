@@ -18,7 +18,7 @@ local dataname = 'imdb-varlen-word'
 local numClasses = 2
 local trsize = 25*1000
 
-local netname = 'cv-max-o'
+local netname = 'cv-max-oV2'
 local HU = 500
 local KH = 3
 
@@ -31,7 +31,7 @@ local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 50
+local batSize = 100
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 local evalFreq = 3 * itPerEp -- every #epoches
