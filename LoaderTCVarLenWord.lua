@@ -44,6 +44,15 @@ function LoaderTCVarLenWord:__tostring__()
 	local str = ""
 	str = str .. torch.type(self) .. ":\n"
 	str = str .. 'created from ' .. self.ffnData .. "\n"
+
+	local num = #self.sortxlen
+	str = str .. 'min len = ' .. self.sortxlen[1] .. "\n"
+	str = str .. 'max len = ' .. self.sortxlen[num] .. "\n"
+	local indMed = math.ceil(#self.sortxlen/2)
+	str = str .. 'median len = ' .. self.sortxlen[indMed] .. "\n"
+	local avg = tablex.reduce('+',self.sortxlen)/num
+	str = str .. 'mean len = ' .. math.ceil(avg) .. "\n"
+
 	str = str .. 'data size = ' .. #self.x .. "\n"
 	str = str .. 'batSize = ' .. self.batSize .. "\n"
 	str = str .. 'numBat = ' .. self.numBat .. "\n"
@@ -120,8 +129,10 @@ function LoaderTCVarLenWord:group_batch()
 		table.insert(self.xlen, xx:numel())
 	end
 	local sortInstIndex = {}
-	for sortedInd in tablex.sortv(self.xlen) do
-		table.insert(sortInstIndex, sortedInd)
+	self.sortxlen = {}
+	for ind, length in tablex.sortv(self.xlen) do
+		table.insert(sortInstIndex, ind)
+		table.insert(self.sortxlen, length)
 	end
 
 	-- make batch-instance matrix by reshaping
