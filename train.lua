@@ -92,10 +92,12 @@ local function get_dft_opt()
     opt.gradClamp = 5
     opt.lrEpCheckpoint = make_lrEpCheckpoint()
 
+    opt.optimMethod = optim.rmsprop
     opt.optimState = {
         learningRate = 2e-3,
         alpha = 0.95, -- decay rate
     }
+    opt.weightDecayOutputLayer = 0
 
     return opt
 end
@@ -185,8 +187,19 @@ this.main = function(opt)
 
     -- prepare model
     md:training() -- for dropout
+
     local params, gradParams = md:getParameters()
     print('#parameters = ' .. params:numel())
+
+    local function getParametersOutputLayer()
+        local pp, gg = md:parameters()
+        local n = #gg
+        assert(n > 2, "too few parameter layers")
+        local weight, bias = pp[n-1], pp[n]
+        local gWeight, gBias = gg[n-1], gg[n]
+        return weight, bias, gWeight, gBias
+    end
+    local weightOL, biasOL, gWeightOL, gBiasOL = getParametersOutputLayer()
 
     -- iterate over batches
     for i = begIt + 1, maxIt do
@@ -260,7 +273,12 @@ this.main = function(opt)
             md:backward(inputs, gradOutputs)
 
             -- regularization
-            gradParams:clamp(-opt.gradClamp, opt.gradClamp)
+            --gradParams:clamp(-opt.gradClamp, opt.gradClamp) -- grad clampping
+            local wdol = opt.weightDecayOutputLayer -- output layer L2 regularizer
+            if wdol > 0 then
+                gWeightOL:add(wdol, weightOL)
+                gBiasOL:add(wdol, biasOL)
+            end
 
             return loss, gradParams
         end
@@ -320,7 +338,7 @@ this.main = function(opt)
         if opt.showIterTime == true then
             timeIter = torch.tic()
         end
-        local _, lst = optim.rmsprop(feval, params, opt.optimState)
+        local _, lst = opt.optimMethod(feval, params, opt.optimState)
         local loss = lst[1]
         if opt.showIterTime == true then
             if opt.gpuId > 0 then cutorch.synchronize() end

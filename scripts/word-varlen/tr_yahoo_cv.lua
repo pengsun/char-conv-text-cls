@@ -2,14 +2,15 @@
 require 'pl.path'
 local timenow = require'util.misc'.get_current_time_str()
 
+local maxEp = 30
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 2e-3, 0.97
+  local baseRate, factor = 0.1, 0.1
   local r = {}
-  for i = 1, 10 do
+  for i = 1, 24 do
     r[i] = baseRate
   end
-  for i = 11, 40 do
-    r[i] = r[i - 1] * factor
+  for i = 25, maxEp do
+    r[i] = baseRate * factor
   end
   return r
 end
@@ -18,11 +19,11 @@ local dataname = 'yahoo-varlen-word'
 local numClasses = 10
 local trsize = 1400*1000
 
-local netname = 'cv-max-o'
+local netname = 'cv-max-oV3'
 local HU = 500
 local KH = 3
 
-local envSavePath = path.join('cv', dataname)
+local envSavePath = path.join('cv-sgd', dataname)
 local envSavePrefix =
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
@@ -31,7 +32,7 @@ local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 250
+local batSize = 100
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
@@ -56,8 +57,8 @@ dofile('train.lua').main{
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = 30,
-  paramInitBound = 0.05,
+  maxEp = maxEp,
+  paramInitBound = 0.01,
 
   printFreq = printFreq,
   evalFreq = evalFreq, -- every #epoches
@@ -66,8 +67,9 @@ dofile('train.lua').main{
   showIterTime = true,
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 
+  optimMethod = require'optim'.sgd,
   optimState = {
-    learningRate = 2e-3,
-    alpha = 0.95, -- decay rate
+    momentum = 0.9,
+    weightDecay = 1e-4,
   },
 }

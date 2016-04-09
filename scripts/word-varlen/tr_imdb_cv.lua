@@ -1,15 +1,32 @@
 -- run train.lua
-require 'pl.path'
+require'pl.path'
 local timenow = require'util.misc'.get_current_time_str()
 
+--local function make_lrEpCheckpoint_small()
+--  local baseRate, factor = 1, 0.1
+--  local r = {}
+--  for i = 1, 10 do
+--    r[i] = baseRate
+--  end
+--
+--  for i = 11, 20 do
+--    r[i] = baseRate * factor
+--  end
+--
+--  for i = 21, 30 do
+--    r[i] = baseRate * factor * factor
+--  end
+--  return r
+--end
+
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 2e-3, 0.97
+  local baseRate, factor = 1, 0.1
   local r = {}
-  for i = 1, 10 do
+  for i = 1, 24 do
     r[i] = baseRate
   end
-  for i = 11, 40 do
-    r[i] = r[i - 1] * factor
+  for i = 25, 30 do
+    r[i] = baseRate * factor
   end
   return r
 end
@@ -18,8 +35,8 @@ local dataname = 'imdb-varlen-word'
 local numClasses = 2
 local trsize = 25*1000
 
-local netname = 'cv-max-o'
-local HU = 500
+local netname = 'cv-max-oV3'
+local HU = 1000
 local KH = 3
 
 local envSavePath = path.join('cv', dataname)
@@ -31,7 +48,7 @@ local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 50
+local batSize = 100
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 local evalFreq = 3 * itPerEp -- every #epoches
@@ -45,7 +62,6 @@ dofile('train.lua').main{
 
   envSavePath = envSavePath,
   envSavePrefix = envSavePrefix,
-
   logSavePath = logSavePath,
 
   V = 30000 + 1, -- vocab + oov(null)
@@ -55,7 +71,7 @@ dofile('train.lua').main{
 
   batSize = batSize,
   maxEp = 30,
-  paramInitBound = 0.05,
+  paramInitBound = 0.01,
 
   printFreq = printFreq,
   evalFreq = evalFreq, -- every #epoches
@@ -64,8 +80,8 @@ dofile('train.lua').main{
   showIterTime = true,
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 
+  optimMethod = require'optim'.sgd,
   optimState = {
-    learningRate = 2e-3,
-    alpha = 0.95, -- decay rate
+    momentum = 0.9,
   },
 }
