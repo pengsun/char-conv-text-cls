@@ -78,10 +78,10 @@ this.main = function(opt)
 
     local function reinit_params(md)
         local b = opt.paramInitBound or 0.08
-        print( ('reinit params uniform, [%4.3f, %4.3f]'):format(-b,b) )
+        print( ('reinit params gaussian, var = %4.3f'):format(b) )
 
         local params, _ = md:getParameters()
-        params:uniform(-b,b)
+        params:normal(0, b)
     end
     reinit_params(md)
 

@@ -15,7 +15,7 @@ this.main = function(opt)
 
     local kH = opt.KH or error('no opt.KH')
     local indUnknown = 1 -- for UNKNOWN token
-    local mconv = nn.OneHotTemporalConvolution(V, HU, kH)
+    local mconv = nn.OneHotTemporalConvolution(V, HU, kH, {hasBias = true})
 
     local md = nn.Sequential()
     -- B, M (,V)
