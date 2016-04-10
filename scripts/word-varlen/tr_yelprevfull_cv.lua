@@ -19,7 +19,7 @@ local dataname = 'yelprevfull-varlen-word'
 local numClasses = 5
 local trsize = 650*1000
 
-local netname = 'cv-max-oV3'
+local netname = 'cv-max-oV4'
 local HU = 500
 local KH = 3
 
@@ -68,6 +68,7 @@ dofile('train.lua').main{
   optimMethod = require'optim'.sgd,
   optimState = {
     momentum = 0.9,
-    weightDecay = 1e-4,
+    weightDecay = 0,
   },
+  weightDecayOutputLayer = 1e-4,
 }

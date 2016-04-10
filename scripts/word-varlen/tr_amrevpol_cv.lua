@@ -19,7 +19,7 @@ local dataname = 'amrevpol-varlen-word'
 local numClasses = 2
 local trsize = 3600*1000
 
-local netname = 'cv-max-oV3'
+local netname = 'cv-max-oV4'
 local HU = 500
 local KH = 3
 
@@ -38,7 +38,7 @@ local logSavePath = path.join(envSavePath,
 )
 
 dofile('train.lua').main{
-  mdPath = path.join('net', 'word-varlen', netname .. '.lua'),
+  mdPath = path.join('net', 'word2', netname .. '.lua'),
   criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = path.join('data', dataname .. '.lua'),
@@ -68,6 +68,7 @@ dofile('train.lua').main{
   optimMethod = require'optim'.sgd,
   optimState = {
     momentum = 0.9,
-    weightDecay = 1e-4,
+    weightDecay = 0,
   },
+  weightDecayOutputLayer = 1e-4,
 }

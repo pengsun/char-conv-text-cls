@@ -8,8 +8,8 @@ local function make_lrEpCheckpoint_small()
   for i = 1, 10 do
     r[i] = baseRate
   end
-  for i = 11, 40 do
-    r[i] = r[i - 1] * factor
+  for i = 11, 30 do
+    r[i] = r[i-1] * factor
   end
   return r
 end
@@ -57,7 +57,7 @@ dofile('train.lua').main{
 
   batSize = batSize,
   maxEp = 30,
-  paramInitBound = 0.05,
+  paramInitBound = 0.01,
 
   printFreq = printFreq,
   evalFreq = evalFreq, -- every #epoches
@@ -66,8 +66,8 @@ dofile('train.lua').main{
   showIterTime = true,
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 
+  optimMethod = require'optim'.rmsprop,
   optimState = {
-    learningRate = 2e-3,
     alpha = 0.95, -- decay rate
   },
 }

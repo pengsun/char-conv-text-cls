@@ -19,7 +19,7 @@ local dataname = 'yahoo-varlen-word'
 local numClasses = 10
 local trsize = 1400*1000
 
-local netname = 'cv-max-oV3'
+local netname = 'cv-max-oV4'
 local HU = 500
 local KH = 3
 
@@ -40,7 +40,7 @@ local evalFreq = 1 * itPerEp -- every #epoches
 
 
 dofile('train.lua').main{
-  mdPath = path.join('net', 'word-varlen', netname .. '.lua'),
+  mdPath = path.join('net', 'word2', netname .. '.lua'),
   criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = path.join('data', dataname .. '.lua'),
@@ -64,12 +64,13 @@ dofile('train.lua').main{
   evalFreq = evalFreq, -- every #epoches
 
   showEpTime = true,
-  showIterTime = true,
+  showIterTime = false,
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 
   optimMethod = require'optim'.sgd,
   optimState = {
     momentum = 0.9,
-    weightDecay = 1e-4,
+    weightDecay = 0,
   },
+  weightDecayOutputLayer = 1e-4,
 }
