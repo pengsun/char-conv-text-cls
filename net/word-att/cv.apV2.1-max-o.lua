@@ -1,3 +1,4 @@
+-- type II, bias
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
@@ -15,8 +16,8 @@ this.main = function(opt)
     local CW = opt.CW or error('no opt.CW')
 
     local indUnknown = 1
-    local mconv = nn.OneHotTemporalConvolution(V, HU, KH)
-    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1)
+    local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias = true})
+    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias = true})
 
     local function make_cv(kH)
         local md = nn.Sequential()

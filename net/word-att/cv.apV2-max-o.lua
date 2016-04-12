@@ -1,3 +1,4 @@
+-- type II
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'

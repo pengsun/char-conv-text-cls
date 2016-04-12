@@ -4,7 +4,7 @@ local timenow = require'util.misc'.get_current_time_str()
 
 local maxEp = 30
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 1, 0.1
+  local baseRate, factor = 0.1, 0.1
   local r = {}
   for i = 1, 24 do
     r[i] = baseRate
@@ -15,11 +15,11 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'yahoo-varlen-word'
-local numClasses = 10
-local trsize = 1400*1000
+local dataname = 'yelprevfull-varlen-word'
+local numClasses = 5
+local trsize = 650*1000
 
-local netname = 'cv.apV2.1-max-o'
+local netname = 'cv.apV2.3-max-o'
 local HU = 500
 local KH = 3
 local CW = 9
@@ -38,7 +38,6 @@ local batSize = 100
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 local evalFreq = 1 * itPerEp -- every #epoches
-
 
 dofile('train.lua').main{
   mdPath = path.join('net', 'word-att', netname .. '.lua'),

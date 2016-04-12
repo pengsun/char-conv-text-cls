@@ -1,3 +1,4 @@
+-- conv, zero padding
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'

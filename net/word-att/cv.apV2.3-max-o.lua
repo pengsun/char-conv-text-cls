@@ -1,4 +1,4 @@
--- concat
+-- type II, conv bias, bow-conv-layer2 no bias
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
@@ -15,9 +15,11 @@ this.main = function(opt)
     local KH = opt.KH or error('no opt.kH')
     local CW = opt.CW or error('no opt.CW')
 
+    local HH = 100
+
     local indUnknown = 1
-    local mconv = nn.OneHotTemporalConvolution(V, HU, KH)
-    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1)
+    local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias = true})
+    local mcontrol = nn.OneHotTemporalConvolution(V, HH, 1, {hasBias = false})
 
     local function make_cv(kH)
         local md = nn.Sequential()
@@ -43,13 +45,20 @@ this.main = function(opt)
         local md = nn.Sequential()
         -- B, M (,V)
         md:add( mcontrol )
-        -- B, M, HU
+        -- B, M, HH
         md:add( nn.Unsqueeze(1, 2) )
-        -- B, 1, M, HU
+        -- B, 1, M, HH
+        md:add( nn.Transpose({2,4}) )
+        -- B, HH, M, 1
+        md:add( cudnn.SpatialConvolution(HH,HU, 1,1) )
+        md:add( cudnn.ReLU(true) )
+        -- B, HU, M, 1
         md:add( cudnn.SpatialAveragePooling(1,cw, 1,stride, 0,pad) )
         md:add( cudnn.Sigmoid() )
-        -- B, 1, M, HU
-        md:add( nn.Squeeze(1, 3) )
+        -- B, HU, M, 1
+        md:add(nn.Squeeze(3, 3) )
+        -- B, HU, M
+        md:add( nn.Transpose({2,3}) )
         -- B, M, HU
         return md
     end
@@ -63,32 +72,32 @@ this.main = function(opt)
     -- B, M (,V)
     md:add( ct )
     -- {B, M, HU}, {B, M, HU}
-    md:add( nn.JoinTable(3, 3) )
-    -- B, M, 2*HU
+    md:add( nn.CMulTable(3, 3) )
+    -- B, M, HU
 
-    -- B, M, 2*HU
+    -- B, M, HU
     md:add( nn.Max(2) )
     md:add( nn.Dropout() )
-    -- B, 2*HU
+    -- B, HU
 
-    -- B, 2*HU
-    md:add( nn.Linear(2*HU, K) )
+    -- B, HU
+    md:add( nn.Linear(HU, K) )
     -- B, K
     md:add( cudnn.LogSoftMax() )
     -- B, K
 
     local function reinit_params(md)
         local b = opt.paramInitBound or 0.08
-        print( ('reinit params uniform, [%4.3f, %4.3f]'):format(-b,b) )
+        print( ('reinit params gaussian, var = %4.3f'):format(b) )
 
         local params, _ = md:getParameters()
-        params:uniform(-b,b)
+        params:normal(0, b)
     end
     reinit_params(md)
 
---    print('setting unknown token index')
---    mconv:setPadding(indUnknown):zeroPaddingWeight()
---    mcontrol:setPadding(indUnknown):zeroPaddingWeight()
+    print('setting unknown token index')
+    mconv:setPadding(indUnknown):zeroPaddingWeight()
+    mcontrol:setPadding(indUnknown):zeroPaddingWeight()
 
     local function md_reset(md, arg)
         -- fine to do nothing
