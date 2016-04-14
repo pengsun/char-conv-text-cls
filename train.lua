@@ -277,7 +277,7 @@ this.main = function(opt)
             local wdol = opt.weightDecayOutputLayer -- output layer L2 regularizer
             if wdol > 0 then
                 gWeightOL:add(wdol, weightOL)
-                gBiasOL:add(wdol, biasOL)
+                --gBiasOL:add(wdol, biasOL)
             end
 
             return loss, gradParams
