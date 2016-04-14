@@ -1,4 +1,4 @@
--- type II, bias
+-- type II, bias, mul const for bow-conv
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
