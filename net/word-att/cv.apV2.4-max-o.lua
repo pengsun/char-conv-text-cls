@@ -1,4 +1,4 @@
--- concat
+-- type II, bias
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
@@ -16,8 +16,8 @@ this.main = function(opt)
     local CW = opt.CW or error('no opt.CW')
 
     local indUnknown = 1
-    local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias=true})
-    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias=true})
+    local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias = true})
+    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias = true})
 
     local function make_cv(kH)
         local md = nn.Sequential()
@@ -48,7 +48,7 @@ this.main = function(opt)
         -- B, 1, M, HU
         md:add( cudnn.SpatialAveragePooling(1,cw, 1,stride, 0,pad) )
         md:add( nn.MulConstant(cw, true) )
-        md:add( cudnn.ReLU(true) )
+        md:add( cudnn.Sigmoid() )
         -- B, 1, M, HU
         md:add( nn.Squeeze(1, 3) )
         -- B, M, HU
@@ -64,16 +64,16 @@ this.main = function(opt)
     -- B, M (,V)
     md:add( ct )
     -- {B, M, HU}, {B, M, HU}
-    md:add( nn.JoinTable(3, 3) )
-    -- B, M, 2*HU
+    md:add( nn.CMulTable(3, 3) )
+    -- B, M, HU
 
-    -- B, M, 2*HU
+    -- B, M, HU
     md:add( nn.Max(2) )
     md:add( nn.Dropout() )
-    -- B, 2*HU
+    -- B, HU
 
-    -- B, 2*HU
-    md:add( nn.Linear(2*HU, K) )
+    -- B, HU
+    md:add( nn.Linear(HU, K) )
     -- B, K
     md:add( cudnn.LogSoftMax() )
     -- B, K

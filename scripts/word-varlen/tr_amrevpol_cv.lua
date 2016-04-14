@@ -19,7 +19,7 @@ local dataname = 'amrevpol-varlen-word'
 local numClasses = 2
 local trsize = 3600*1000
 
-local netname = 'cv-max-oV4'
+local netname = 'cv-bn-max-o'
 local HU = 500
 local KH = 3
 

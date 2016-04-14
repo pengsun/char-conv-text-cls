@@ -1,34 +1,31 @@
 -- run train.lua
-require 'pl.path'
+require'pl.path'
 local timenow = require'util.misc'.get_current_time_str()
 
-local maxEp = 30
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 0.25, 0.1
+  local baseRate, factor = 1, 0.1
   local r = {}
   for i = 1, 24 do
     r[i] = baseRate
   end
-  for i = 25, maxEp do
+  for i = 25, 30 do
     r[i] = baseRate * factor
   end
   return r
 end
 
-local dataname = 'yelprevfull-varlen-word'
-local numClasses = 5
-local trsize = 650*1000
+local dataname = 'imdb-varlenrand-word'
+local numClasses = 2
+local trsize = 25*1000
 
-local netname = 'cv.apV2.4-max-o'
+local netname = 'cv-max-oV4'
 local HU = 500
 local KH = 3
-local CW = 15
 
-local envSavePath = path.join('cv-sgd', dataname .. '-att' .. '-wdOutLay1-bat100-lr0.25-v2.4')
+local envSavePath = path.join('cv-sgd', dataname)
 local envSavePrefix =
-'HU' .. HU .. '-' ..
+        'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
-        'CW' .. CW .. '-' ..
         netname
 local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
@@ -37,10 +34,10 @@ local logSavePath = path.join(envSavePath,
 local batSize = 100
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
-local evalFreq = 1 * itPerEp -- every #epoches
+local evalFreq = 3 * itPerEp -- every #epoches
 
 dofile('train.lua').main{
-  mdPath = path.join('net', 'word-att', netname .. '.lua'),
+  mdPath = path.join('net', 'word2', netname .. '.lua'),
   criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = path.join('data', dataname .. '.lua'),
@@ -53,18 +50,17 @@ dofile('train.lua').main{
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   KH = KH,
-  CW = CW,
   numClasses = numClasses,
 
   batSize = batSize,
-  maxEp = maxEp,
+  maxEp = 30,
   paramInitBound = 0.01,
 
   printFreq = printFreq,
   evalFreq = evalFreq, -- every #epoches
 
   showEpTime = true,
-  showIterTime = false,
+  showIterTime = true,
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 
   optimMethod = require'optim'.sgd,

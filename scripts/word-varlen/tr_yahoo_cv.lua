@@ -19,7 +19,7 @@ local dataname = 'yahoo-varlen-word'
 local numClasses = 10
 local trsize = 1400*1000
 
-local netname = 'cv-max-oV4'
+local netname = 'cv-bn-max-o'
 local HU = 500
 local KH = 3
 

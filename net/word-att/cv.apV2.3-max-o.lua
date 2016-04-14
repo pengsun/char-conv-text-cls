@@ -1,4 +1,4 @@
--- type II, conv bias, bow-conv-layer2 no bias
+-- type II, conv bias, bow-conv layer2 MLP no bias
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'

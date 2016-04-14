@@ -4,7 +4,7 @@ local timenow = require'util.misc'.get_current_time_str()
 
 local maxEp = 30
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 0.25, 0.1
+  local baseRate, factor = 0.1, 0.1
   local r = {}
   for i = 1, 24 do
     r[i] = baseRate
@@ -15,20 +15,19 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'yelprevfull-varlen-word'
-local numClasses = 5
-local trsize = 650*1000
+local dataname = 'imdb-fixtail-word'
+local numClasses = 2
+local trsize = 25*1000
 
-local netname = 'cv.apV2.4-max-o'
+local netname = 'cv-max-oV4'
 local HU = 500
 local KH = 3
-local CW = 15
+local seqLength = 475
 
-local envSavePath = path.join('cv-sgd', dataname .. '-att' .. '-wdOutLay1-bat100-lr0.25-v2.4')
-local envSavePrefix =
-'HU' .. HU .. '-' ..
+local envSavePath = path.join('cv-sgd', dataname)
+local envSavePrefix = 'M' .. seqLength .. '-' ..
+        'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
-        'CW' .. CW .. '-' ..
         netname
 local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
@@ -40,11 +39,11 @@ local printFreq = math.ceil(0.061 * itPerEp)
 local evalFreq = 1 * itPerEp -- every #epoches
 
 dofile('train.lua').main{
-  mdPath = path.join('net', 'word-att', netname .. '.lua'),
+  mdPath = path.join('net', 'word2', netname .. '.lua'),
   criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = path.join('data', dataname .. '.lua'),
-  dataMask = { tr = true, val = true, te = false },
+  dataMask = {tr = true, val = true, te = false},
 
   envSavePath = envSavePath,
   envSavePrefix = envSavePrefix,
@@ -53,8 +52,8 @@ dofile('train.lua').main{
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   KH = KH,
-  CW = CW,
   numClasses = numClasses,
+  seqLength = seqLength,
 
   batSize = batSize,
   maxEp = maxEp,
@@ -64,7 +63,7 @@ dofile('train.lua').main{
   evalFreq = evalFreq, -- every #epoches
 
   showEpTime = true,
-  showIterTime = false,
+  showIterTime = true,
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 
   optimMethod = require'optim'.sgd,
