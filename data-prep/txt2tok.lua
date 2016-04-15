@@ -22,7 +22,6 @@ local function make_tok(fnTxt)
     print('running command:')
     print(cmd)
     local code = os.execute(cmd)
-    assert(code==0, 'failed.. \n')
     print("\n")
 end
 
@@ -35,10 +34,17 @@ this.main = function(opt)
         -- input
         path_data = '/mnt/data/datasets/Text/dbpedia/tok-cat',
         fn_txt = 'test.txt',
+        pl_script = path.join('data-prep', 'to_tokens.pl'),
     }
+
+    -- what pl script?
+    if opt.pl_script then
+        PL_SCRIPT = opt.pl_script
+    end
 
     local fnTxt = path.join(opt.path_data, opt.fn_txt)
     print('input txt: ' .. fnTxt)
+
     make_tok(fnTxt)
 end
 
