@@ -1,5 +1,6 @@
 -- type II, bias, mul const for bow-conv.
--- Initialization: weight gaussian, bias zero
+-- Initialization: weight gaussian, bias zero.
+-- bow-conv align.
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
@@ -21,11 +22,18 @@ this.main = function(opt)
     local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias = true})
 
     local function make_cv(kH)
+        local function get_pad()
+            assert(kH %2 == 1)
+            return (kH -1)/2
+        end
+        local pad = get_pad()
+
         local md = nn.Sequential()
         -- B, M (,V)
         md:add( mconv )
         -- B, M-kH+1, HU
-        md:add( nn.Padding(2, kH-1) )
+        md:add( nn.Padding(2, -pad) )
+        md:add( nn.Padding(2, pad) )
         -- B, M, HU
         md:add( cudnn.ReLU(true) )
         -- B, M, HU

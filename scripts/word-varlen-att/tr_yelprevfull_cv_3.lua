@@ -19,12 +19,12 @@ local dataname = 'yelprevfull-varlen-word'
 local numClasses = 5
 local trsize = 650*1000
 
-local netname = 'cv.apV5-max-o'
+local netname = 'cv.apV2.6-max-o'
 local HU = 500
 local KH = 3
 local CW = 9
 
-local envSavePath = path.join('cv-sgd', dataname .. '-att' .. '-wdOutLay1-bat100-lr0.25-v5')
+local envSavePath = path.join('cv-sgd', dataname .. '-att' .. '-wdOutLay1-bat100-lr0.25-v2.6')
 local envSavePrefix =
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..

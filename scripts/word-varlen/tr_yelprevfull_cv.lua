@@ -4,7 +4,7 @@ local timenow = require'util.misc'.get_current_time_str()
 
 local maxEp = 30
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 1, 0.1
+  local baseRate, factor = 0.1, 0.1
   local r = {}
   for i = 1, 24 do
     r[i] = baseRate
@@ -19,7 +19,7 @@ local dataname = 'yelprevfull-varlen-word'
 local numClasses = 5
 local trsize = 650*1000
 
-local netname = 'cv-bn-max-o'
+local netname = 'cv-max-oV5'
 local HU = 500
 local KH = 3
 
@@ -28,7 +28,7 @@ local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 local evalFreq = 1 * itPerEp -- every #epoches
 
-local envSavePath = path.join('cv-sgd', dataname)
+local envSavePath = path.join('cv-sgd', dataname ..'-wdOutLay1-bat100-lr0.1-v5')
 local envSavePrefix =
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..

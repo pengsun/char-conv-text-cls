@@ -1,5 +1,8 @@
--- type II, bias, mul const for bow-conv.
--- Initialization: weight gaussian, bias zero
+-- type II, no conv bias.
+-- mul const for bow-conv.
+-- Initialization: weight gaussian.
+-- bow-conv align.
+-- unknown padding
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
@@ -16,16 +19,22 @@ this.main = function(opt)
     local KH = opt.KH or error('no opt.kH')
     local CW = opt.CW or error('no opt.CW')
 
-    local indUnknown = 1
-    local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias = true})
-    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias = true})
+    local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias = false})
+    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias = false})
 
     local function make_cv(kH)
+        local function get_pad()
+            assert(kH %2 == 1)
+            return (kH -1)/2
+        end
+        local pad = get_pad()
+
         local md = nn.Sequential()
         -- B, M (,V)
         md:add( mconv )
         -- B, M-kH+1, HU
-        md:add( nn.Padding(2, kH-1) )
+        md:add( nn.Padding(2, -pad) )
+        md:add( nn.Padding(2, pad) )
         -- B, M, HU
         md:add( cudnn.ReLU(true) )
         -- B, M, HU
@@ -92,12 +101,10 @@ this.main = function(opt)
 
         local function reinit_onehotTempConv(m)
             local pp = m:parameters()
-            local n = #pp; assert(n >= 2);
-
-            for i = 1, n-1 do
+            local n = #pp; assert(n >= 1);
+            for i = 1, n do
                 reinit_weight( pp[i] ) -- weight
             end
-            reinit_bias( pp[n] ) -- bias
         end
 
         local function reinit_linear(m)
@@ -115,10 +122,6 @@ this.main = function(opt)
         reinit_linear(mlinear[1])
     end
     reinit_params(md)
-
-    print('setting unknown token index')
-    mconv:setPadding(indUnknown):zeroPaddingWeight()
-    mcontrol:setPadding(indUnknown):zeroPaddingWeight()
 
     local function md_reset(md, arg)
         -- fine to do nothing
