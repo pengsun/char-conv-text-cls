@@ -5,11 +5,11 @@ local ut = require'util.misc'
 local numClasses = 2
 local vocab_truncate_size = 30000 -- vocabulary control
 
-local dataPath = '/mnt/data/datasets/Text/yelp-review-polarity' -- deepml
+local dataPath = '/data/datasets/Text/yelp-review-polarity' -- deepml
 --local dataPath = '/home/ps/data/yelp-review-polarity' -- local
 
-local dataPathTokCat = path.join(dataPath, 'tok-cat')
-local dataPathWordT7 = path.join(dataPath, 'word-t7')
+local dataPathTokCat = path.join(dataPath, 'tok-cat-rie')
+local dataPathWordT7 = path.join(dataPath, 'word-t7-rie')
 
 --- ensure output path
 ut.ensure_path(dataPathTokCat)
@@ -17,29 +17,17 @@ ut.ensure_path(dataPathWordT7)
 
 
 print'==> [csv to text and category: .csv to .txt & .cat]'
-local fun_get_cat = function (items) return items[1] end -- CSV entry 1
-local fun_get_txt = function (items) return items[2] end -- CSV entry 2
-require('data-prep.csv2txtcat').main{ -- train
+require('data-prep.csv2txtcat-rie').main{ -- train
     -- input
-    path_csv = dataPath,
-    fn_csv = 'train.csv',
-    fun_get_cat = fun_get_cat,
-    fun_get_txt = fun_get_txt,
+    input_path = path.join(dataPath, 'train.csv'),
     -- output
-    path_txt_cat = dataPathTokCat,
-    fn_txt = 'train.txt',
-    fn_cat = 'train.cat',
+    output_path_name = path.join(dataPathTokCat, 'train'),
 }
-require('data-prep.csv2txtcat').main{ -- test
+require('data-prep.csv2txtcat-rie').main{ -- train
     -- input
-    path_csv = dataPath,
-    fn_csv = 'test.csv',
-    fun_get_cat = fun_get_cat,
-    fun_get_txt = fun_get_txt,
+    input_path = path.join(dataPath, 'test.csv'),
     -- output
-    path_txt_cat = dataPathTokCat,
-    fn_txt = 'test.txt',
-    fn_cat = 'test.cat',
+    output_path_name = path.join(dataPathTokCat, 'test'),
 }
 
 
@@ -48,11 +36,13 @@ require'data-prep.txt2tok'.main{ -- train
     -- input
     path_data = dataPathTokCat,
     fn_txt = 'train.txt',
+    pl_script = 'data-prep/to_tokens-url.pl'
 }
 require'data-prep.txt2tok'.main{ -- test
     -- input
     path_data = dataPathTokCat,
     fn_txt = 'test.txt',
+    pl_script = 'data-prep/to_tokens-url.pl'
 }
 
 

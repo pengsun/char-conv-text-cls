@@ -31,10 +31,16 @@ this.main = function(opt)
     --- default/examplar option
     local opt = opt or {
         -- input
+        pl_script = path.join('data-prep', 'convert.pl'),
         input_path = '/mnt/data/datasets/Text/dbpedia/test.csv',
         -- output
         output_path_name = '/mnt/data/datasets/Text/dbpedia/tok-cat/test',
     }
+
+    -- what pl script?
+    if opt.pl_script then
+        PL_SCRIPT = opt.pl_script
+    end
 
     print('input CSV: ' .. opt.input_path)
     print('saving tokens, category to: ' .. opt.output_path_name)

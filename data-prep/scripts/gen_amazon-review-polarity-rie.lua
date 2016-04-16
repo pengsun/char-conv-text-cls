@@ -2,11 +2,11 @@ require'pl.path'
 local ut = require'util.misc'
 
 --- common opt
-local numClasses = 5
+local numClasses = 2 -- positive/negative
 local vocab_truncate_size = 30000 -- vocabulary control
 
-local dataPath = '/data/datasets/Text/yelp-review-full' -- deepml
---local dataPath = '/home/ps/data/yelp-review-full' -- local
+local dataPath = '/data/datasets/Text/amazon-review-polarity' -- deepml
+--local dataPath = '/home/ps/data/amazon-review-polarity' -- local
 
 local dataPathTokCat = path.join(dataPath, 'tok-cat-rie')
 local dataPathWordT7 = path.join(dataPath, 'word-t7-rie')
@@ -19,12 +19,14 @@ ut.ensure_path(dataPathWordT7)
 print'==> [csv to text and category: .csv to .txt & .cat]'
 require('data-prep.csv2txtcat-rie').main{ -- train
     -- input
+    pl_script = 'data-prep/convert-multifields.pl',
     input_path = path.join(dataPath, 'train.csv'),
     -- output
     output_path_name = path.join(dataPathTokCat, 'train'),
 }
 require('data-prep.csv2txtcat-rie').main{ -- train
     -- input
+    pl_script = 'data-prep/convert-multifields.pl',
     input_path = path.join(dataPath, 'test.csv'),
     -- output
     output_path_name = path.join(dataPathTokCat, 'test'),

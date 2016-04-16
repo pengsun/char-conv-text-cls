@@ -1,5 +1,5 @@
-if not LoaderTCVarLenWord then
-    require'LoaderTCVarLenWord'
+if not LoaderTCVarLenRandWord then
+    require'LoaderTCVarLenRandWord'
 end
 
 local this = {}
@@ -26,7 +26,7 @@ this.main = function (opt)
     if dataMask.tr == true then
         local fntr = path.join(dataPath, 'tr.t7')
         print('train data loader')
-        tr = LoaderTCVarLenWord(fntr, opt.batSize, arg)
+        tr = LoaderTCVarLenRandWord(fntr, opt.batSize, arg)
         tr:set_order_rand()
         print(tr)
     end
@@ -34,7 +34,7 @@ this.main = function (opt)
     if dataMask.val == true then
         local fnval = path.join(dataPath, 'te.t7')
         print('val data loader')
-        val = LoaderTCVarLenWord(fnval, opt.batSize, arg)
+        val = LoaderTCVarLenRandWord(fnval, opt.batSize, arg)
         val:set_order_natural()
         print(val)
     end
@@ -42,7 +42,7 @@ this.main = function (opt)
     if dataMask.te == true then
         local fnte = path.join(dataPath, 'te.t7')
         print('test data loader')
-        te = LoaderTCVarLenWord(fnte, opt.batSize, arg)
+        te = LoaderTCVarLenRandWord(fnte, opt.batSize, arg)
         te:set_order_natural()
         print(te)
     end
