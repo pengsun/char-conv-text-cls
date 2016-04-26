@@ -10,9 +10,9 @@ this.main = function (opt)
     opt.batSize = opt.batSize or error('no opt.batSize')
     local dataMask = opt.dataMask or {tr=true,val=true,te=true}
     --
-    --local dataPath = "/mnt/data/datasets/Text/yelp-review-full/word-t7"
-    local dataPath = "/data/datasets/Text/yelp-review-full/word-t7"
-    --local dataPath = "/home/ps/data/yelp-review-full/word-t7"
+    --local dataPath = "/mnt/data/datasets/Text/yelp-review-full/word-t7-rie"
+    local dataPath = "/data/datasets/Text/yelp-review-full/word-t7-rie"
+    --local dataPath = "/home/ps/data/yelp-review-full/word-t7-rie"
 
     -- vocab
     local vocab = torch.load( path.join(dataPath, 'vocab.t7') )
