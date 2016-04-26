@@ -89,7 +89,7 @@ local function get_dft_opt()
     opt.showEpTime = true -- show eopch time
     opt.showIterTime = true -- show iteration time
 
-    opt.gradClamp = 5
+    --opt.gradClamp = 5
     opt.lrEpCheckpoint = make_lrEpCheckpoint()
 
     opt.optimMethod = optim.rmsprop
