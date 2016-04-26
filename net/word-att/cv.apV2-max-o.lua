@@ -63,7 +63,7 @@ this.main = function(opt)
     -- B, M (,V)
     md:add( ct )
     -- {B, M, HU}, {B, M, HU}
-    md:add( nn.CMulTable(3, 3) )
+    md:add( nn.CMulTable() )
     -- B, M, HU
 
     -- B, M, HU
@@ -78,11 +78,17 @@ this.main = function(opt)
     -- B, K
 
     local function reinit_params(md)
+--        local b = opt.paramInitBound or 0.08
+--        print( ('reinit params uniform, [%4.3f, %4.3f]'):format(-b,b) )
+--
+--        local params, _ = md:getParameters()
+--        params:uniform(-b,b)
+
         local b = opt.paramInitBound or 0.08
-        print( ('reinit params uniform, [%4.3f, %4.3f]'):format(-b,b) )
+        print( ('reinit params gaussian, var = %4.3f'):format(b) )
 
         local params, _ = md:getParameters()
-        params:uniform(-b,b)
+        params:normal(0, b)
     end
     reinit_params(md)
 

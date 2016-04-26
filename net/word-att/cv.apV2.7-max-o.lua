@@ -1,7 +1,7 @@
--- type II, bias, mul const for bow-conv.
+-- type II, seq conv bias, bow conv strict bias
+-- mul const for bow-conv.
 -- Initialization: weight gaussian, bias zero.
--- bow-conv align.
--- unknown padding
+-- seq-conv align.
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
@@ -18,8 +18,9 @@ this.main = function(opt)
     local KH = opt.KH or error('no opt.kH')
     local CW = opt.CW or error('no opt.CW')
 
+    local indUnknown = 1
     local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias = true})
-    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias = true})
+    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias = false})
 
     local function make_cv(kH)
         local function get_pad()
@@ -57,9 +58,10 @@ this.main = function(opt)
         -- B, 1, M, HU
         md:add( cudnn.SpatialAveragePooling(1,cw, 1,stride, 0,pad) )
         md:add( nn.MulConstant(cw, true) )
-        md:add( cudnn.Sigmoid() )
-        -- B, 1, M, HU
         md:add( nn.Squeeze(1, 3) )
+        -- B, M, HU
+        md:add( nn.TemporalAddBias(HU) )
+        md:add( cudnn.Sigmoid() )
         -- B, M, HU
         return md
     end
@@ -73,7 +75,7 @@ this.main = function(opt)
     -- B, M (,V)
     md:add( ct )
     -- {B, M, HU}, {B, M, HU}
-    md:add( nn.CMulTable(3, 3) )
+    md:add( nn.CMulTable() )
     -- B, M, HU
 
     -- B, M, HU
@@ -98,7 +100,7 @@ this.main = function(opt)
             b:fill(0)
         end
 
-        local function reinit_onehotTempConv(m)
+        local function reinit_onehotTempConv_Bias(m)
             local pp = m:parameters()
             local n = #pp; assert(n >= 2);
 
@@ -108,6 +110,15 @@ this.main = function(opt)
             reinit_bias( pp[n] ) -- bias
         end
 
+        local function reinit_onehotTempConv_noBias(m)
+            local pp = m:parameters()
+            local n = #pp
+
+            for i = 1, n do
+                reinit_weight( pp[i] ) -- weight
+            end
+        end
+
         local function reinit_linear(m)
             local pp = m:parameters()
             assert(#pp == 2)
@@ -115,14 +126,18 @@ this.main = function(opt)
             reinit_bias( pp[2] )
         end
 
-        reinit_onehotTempConv(mconv)
-        reinit_onehotTempConv(mcontrol)
+        reinit_onehotTempConv_Bias(mconv)
+        reinit_onehotTempConv_noBias(mcontrol)
 
         local mlinear = md:findModules('nn.Linear')
         assert(#mlinear == 1)
         reinit_linear(mlinear[1])
     end
     reinit_params(md)
+
+    print('setting unknown token index')
+    mconv:setPadding(indUnknown):zeroPaddingWeight()
+    mcontrol:setPadding(indUnknown):zeroPaddingWeight()
 
     local function md_reset(md, arg)
         -- fine to do nothing

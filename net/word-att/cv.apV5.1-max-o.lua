@@ -1,6 +1,7 @@
--- type II, bias
+-- concat, seq conv bias, bow conv strict bias
 -- mul const for bow-conv.
--- Initialization: weight gaussian, bias zero
+-- Initialization: weight gaussian, bias zero.
+-- seq-conv align.
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
@@ -18,17 +19,22 @@ this.main = function(opt)
     local CW = opt.CW or error('no opt.CW')
 
     local indUnknown = 1
-    local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias = true})
-    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias = true})
+    local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias=true})
+    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias=false})
 
     local function make_cv(kH)
+        local function get_pad()
+            assert(kH %2 == 1)
+            return (kH -1)/2
+        end
+        local pad = get_pad()
+
         local md = nn.Sequential()
         -- B, M (,V)
         md:add( mconv )
         -- B, M-kH+1, HU
-        md:add( nn.Padding(2, kH-1) )
-        -- B, M, HU
-        md:add( cudnn.ReLU(true) )
+        md:add( nn.Padding(2, -pad) )
+        md:add( nn.Padding(2, pad) )
         -- B, M, HU
         return md
     end
@@ -50,9 +56,9 @@ this.main = function(opt)
         -- B, 1, M, HU
         md:add( cudnn.SpatialAveragePooling(1,cw, 1,stride, 0,pad) )
         md:add( nn.MulConstant(cw, true) )
-        md:add( cudnn.Sigmoid() )
-        -- B, 1, M, HU
         md:add( nn.Squeeze(1, 3) )
+        -- B, M, HU
+        md:add( nn.TemporalAddBias(HU) )
         -- B, M, HU
         return md
     end
@@ -66,16 +72,17 @@ this.main = function(opt)
     -- B, M (,V)
     md:add( ct )
     -- {B, M, HU}, {B, M, HU}
-    md:add( nn.CMulTable() )
-    -- B, M, HU
+    md:add( nn.JoinTable(3, 3) )
+    md:add( cudnn.ReLU(true) )
+    -- B, M, 2*HU
 
-    -- B, M, HU
+    -- B, M, 2*HU
     md:add( nn.Max(2) )
     md:add( nn.Dropout() )
-    -- B, HU
+    -- B, 2*HU
 
-    -- B, HU
-    md:add( nn.Linear(HU, K) )
+    -- B, 2*HU
+    md:add( nn.Linear(2*HU, K) )
     -- B, K
     md:add( cudnn.LogSoftMax() )
     -- B, K
@@ -91,7 +98,7 @@ this.main = function(opt)
             b:fill(0)
         end
 
-        local function reinit_onehotTempConv(m)
+        local function reinit_onehotTempConv_Bias(m)
             local pp = m:parameters()
             local n = #pp; assert(n >= 2);
 
@@ -101,6 +108,15 @@ this.main = function(opt)
             reinit_bias( pp[n] ) -- bias
         end
 
+        local function reinit_onehotTempConv_noBias(m)
+            local pp = m:parameters()
+            local n = #pp
+
+            for i = 1, n do
+                reinit_weight( pp[i] ) -- weight
+            end
+        end
+
         local function reinit_linear(m)
             local pp = m:parameters()
             assert(#pp == 2)
@@ -108,8 +124,8 @@ this.main = function(opt)
             reinit_bias( pp[2] )
         end
 
-        reinit_onehotTempConv(mconv)
-        reinit_onehotTempConv(mcontrol)
+        reinit_onehotTempConv_Bias(mconv)
+        reinit_onehotTempConv_noBias(mcontrol)
 
         local mlinear = md:findModules('nn.Linear')
         assert(#mlinear == 1)

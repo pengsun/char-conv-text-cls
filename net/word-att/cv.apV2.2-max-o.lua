@@ -63,7 +63,7 @@ this.main = function(opt)
     -- B, M (,V)
     md:add( ct )
     -- {B, M, HU}, {B, M, HU}
-    md:add( nn.CMulTable(3, 3) )
+    md:add( nn.CMulTable() )
     -- B, M, HU
 
     -- B, M, HU

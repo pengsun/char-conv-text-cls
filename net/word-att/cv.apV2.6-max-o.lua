@@ -1,6 +1,7 @@
--- type II, bias, mul const for bow-conv.
+-- type II, bias
+-- mul const for bow-conv.
 -- Initialization: weight gaussian, bias zero.
--- bow-conv align.
+-- seq-conv align.
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
@@ -73,7 +74,7 @@ this.main = function(opt)
     -- B, M (,V)
     md:add( ct )
     -- {B, M, HU}, {B, M, HU}
-    md:add( nn.CMulTable(3, 3) )
+    md:add( nn.CMulTable() )
     -- B, M, HU
 
     -- B, M, HU

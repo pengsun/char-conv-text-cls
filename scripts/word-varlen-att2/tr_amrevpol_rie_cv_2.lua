@@ -4,7 +4,7 @@ local timenow = require'util.misc'.get_current_time_str()
 
 local maxEp = 30
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 0.1, 0.1
+  local baseRate, factor = 0.25, 0.1
   local r = {}
   for i = 1, 24 do
     r[i] = baseRate
@@ -15,30 +15,33 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'yelprevpol-varlen-word'
+local dataname = 'amrevpol-rie-varlen-word'
 local numClasses = 2
-local trsize = 560*1000
+local trsize = 3600*1000
 
-local netname = 'cv-max-oV5'
+local netname = 'cv.apV5-max-o'
 local HU = 500
 local KH = 3
+local CW = 9
 
-local envSavePath = path.join('cv-sgd', dataname..'-wdOutLay1-bat100-lr0.1-v5')
+local envSavePath = path.join('cv-sgd-rie', dataname .. '-wdOutLay1-bat100-lr0.25-att-v5')
 local envSavePrefix =
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
+        'CW' .. CW .. '-' ..
         netname
 local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 100
+local batSize = 50
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 local evalFreq = 1 * itPerEp -- every #epoches
 
+
 dofile('train.lua').main{
-  mdPath = path.join('net', 'word2', netname .. '.lua'),
+  mdPath = path.join('net', 'word-att', netname .. '.lua'),
   criPath = path.join('net', 'cri-nll-one' .. '.lua'),
 
   dataPath = path.join('data', dataname .. '.lua'),
@@ -46,12 +49,12 @@ dofile('train.lua').main{
 
   envSavePath = envSavePath,
   envSavePrefix = envSavePrefix,
-
   logSavePath = logSavePath,
 
   V = 30000 + 1, -- vocab + oov(null)
   HU = HU,
   KH = KH,
+  CW = CW,
   numClasses = numClasses,
 
   batSize = batSize,

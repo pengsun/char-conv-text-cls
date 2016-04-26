@@ -1,4 +1,8 @@
--- type II, conv bias, bow-conv layer2 MLP no bias
+-- type II, bias
+-- mul const for bow-conv.
+-- Initialization: weight gaussian, bias zero.
+-- bow-conv align.
+-- unknown padding
 require'nn'
 require'cudnn'
 require'onehot-temp-conv'
@@ -15,18 +19,22 @@ this.main = function(opt)
     local KH = opt.KH or error('no opt.kH')
     local CW = opt.CW or error('no opt.CW')
 
-    local HH = 100
-
-    local indUnknown = 1
     local mconv = nn.OneHotTemporalConvolution(V, HU, KH, {hasBias = true})
-    local mcontrol = nn.OneHotTemporalConvolution(V, HH, 1, {hasBias = false})
+    local mcontrol = nn.OneHotTemporalConvolution(V, HU, 1, {hasBias = true})
 
     local function make_cv(kH)
+        local function get_pad()
+            assert(kH %2 == 1)
+            return (kH -1)/2
+        end
+        local pad = get_pad()
+
         local md = nn.Sequential()
         -- B, M (,V)
         md:add( mconv )
         -- B, M-kH+1, HU
-        md:add( nn.Padding(2, kH-1) )
+        md:add( nn.Padding(2, -pad) )
+        md:add( nn.Padding(2, pad) )
         -- B, M, HU
         md:add( cudnn.ReLU(true) )
         -- B, M, HU
@@ -45,20 +53,14 @@ this.main = function(opt)
         local md = nn.Sequential()
         -- B, M (,V)
         md:add( mcontrol )
-        -- B, M, HH
+        -- B, M, HU
         md:add( nn.Unsqueeze(1, 2) )
-        -- B, 1, M, HH
-        md:add( nn.Transpose({2,4}) )
-        -- B, HH, M, 1
-        md:add( cudnn.SpatialConvolution(HH,HU, 1,1) )
-        md:add( cudnn.ReLU(true) )
-        -- B, HU, M, 1
+        -- B, 1, M, HU
         md:add( cudnn.SpatialAveragePooling(1,cw, 1,stride, 0,pad) )
+        md:add( nn.MulConstant(cw, true) )
         md:add( cudnn.Sigmoid() )
-        -- B, HU, M, 1
-        md:add(nn.Squeeze(3, 3) )
-        -- B, HU, M
-        md:add( nn.Transpose({2,3}) )
+        -- B, 1, M, HU
+        md:add( nn.Squeeze(1, 3) )
         -- B, M, HU
         return md
     end
@@ -72,7 +74,7 @@ this.main = function(opt)
     -- B, M (,V)
     md:add( ct )
     -- {B, M, HU}, {B, M, HU}
-    md:add( nn.CMulTable() )
+    md:add( nn.CMulTable(3, 3) )
     -- B, M, HU
 
     -- B, M, HU
@@ -87,17 +89,41 @@ this.main = function(opt)
     -- B, K
 
     local function reinit_params(md)
-        local b = opt.paramInitBound or 0.08
-        print( ('reinit params gaussian, var = %4.3f'):format(b) )
+        local stdv = opt.paramInitBound or 0.08
+        print( ('reinit params: weight gaussian, var = %4.3f; bias zero'):format(stdv) )
 
-        local params, _ = md:getParameters()
-        params:normal(0, b)
+        local function reinit_weight(w)
+            w:normal(0, stdv) -- weight only
+        end
+        local function reinit_bias(b)
+            b:fill(0)
+        end
+
+        local function reinit_onehotTempConv(m)
+            local pp = m:parameters()
+            local n = #pp; assert(n >= 2);
+
+            for i = 1, n-1 do
+                reinit_weight( pp[i] ) -- weight
+            end
+            reinit_bias( pp[n] ) -- bias
+        end
+
+        local function reinit_linear(m)
+            local pp = m:parameters()
+            assert(#pp == 2)
+            reinit_weight( pp[1] )
+            reinit_bias( pp[2] )
+        end
+
+        reinit_onehotTempConv(mconv)
+        reinit_onehotTempConv(mcontrol)
+
+        local mlinear = md:findModules('nn.Linear')
+        assert(#mlinear == 1)
+        reinit_linear(mlinear[1])
     end
     reinit_params(md)
-
-    print('setting unknown token index')
-    mconv:setPadding(indUnknown):zeroPaddingWeight()
-    mcontrol:setPadding(indUnknown):zeroPaddingWeight()
 
     local function md_reset(md, arg)
         -- fine to do nothing
