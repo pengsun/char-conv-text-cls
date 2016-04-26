@@ -2,13 +2,14 @@
 require 'pl.path'
 local timenow = require'util.misc'.get_current_time_str()
 
+local maxEp = 30
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 2e-3, 0.97
+  local baseRate, factor = 2e-3, 0.1
   local r = {}
-  for i = 1, 10 do
+  for i = 1, 3 do
     r[i] = baseRate
   end
-  for i = 11, 30 do
+  for i = 4, maxEp do
     r[i] = r[i-1] * factor
   end
   return r

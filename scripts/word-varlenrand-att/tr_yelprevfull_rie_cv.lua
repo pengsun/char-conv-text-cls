@@ -15,7 +15,7 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'yelprevfull-varlenrand-word'
+local dataname = 'yelprevfull-rie-varlenrand-word'
 local numClasses = 5
 local trsize = 650*1000
 
@@ -24,7 +24,7 @@ local HU = 500
 local KH = 3
 local CW = 15
 
-local envSavePath = path.join('cv-sgd', dataname .. '-att' .. '-wdOutLay1-bat100-lr0.1-v2.6')
+local envSavePath = path.join('cv-sgd-rie', dataname .. '-att' .. '-wdOutLay1-bat100-lr0.1-v2.6')
 local envSavePrefix =
 'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
