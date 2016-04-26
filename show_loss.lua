@@ -62,24 +62,19 @@ end
 --- configs
 require'onehot-temp-conv'
 local paths = {
-    path.join('cv-sgd', 'yelprevfull-varlen-word-wdOutLay1-bat100-V4'),
-    path.join('cv-sgd', 'yelprevfull-fixtail-word'),
-    path.join('cv-sgd', 'yelprevfull-fixtail-word'),
-    path.join('cv-sgd', 'yelprevfull-fixtail-word'),
+    path.join('cv-sgd', 'yahoo-varlen-word-wdOutLay1-bat100-lr0.1-v4'),
+    path.join('cv-sgd', 'yahoo-varlen-word-wdOutLay1-bat100-lr0.1-bn'),
 }
 local names = {
-    "HU500-KH3-cv-max-oV4_epoch30.00_lossval0.7877_errval34.32",
-    "M329-HU500-KH3-cv-max-oV4_epoch30.00_lossval0.7997_errval34.79",
-    "M225-HU500-KH3-cv-max-oV4_epoch30.00_lossval0.8089_errval35.05",
-    'M118-HU500-KH3-cv-max-oV4_epoch30.00_lossval0.8516_errval37.12',
+    "HU500-KH3-cv-max-oV4_epoch30.00_lossval0.8314_errval26.48",
+    "HU500-KH3-cv-bn-max-o_epoch30.00_lossval0.9451_errval27.33",
 }
 local plot_names = names
 local plot_names = {
-    'var-len',
-    'fix-len-q-90%',
-    'fix-len-q-75%',
-    'fix-len-q-50%',
+    'oh-conv',
+    'oh-conv-BN',
 }
+local figure_name_prefix = 'yahoo'
 
 --- get stuff
 local itemsErrVal = {}
@@ -100,14 +95,14 @@ end
 
 --- draw
 gnuplot.figure(1)
-gnuplot.title('val loss')
+gnuplot.title(figure_name_prefix .. ', val loss')
 gnuplot.plot(table.unpack(itemsLossVal))
 
 gnuplot.figure(2)
-gnuplot.title('tr loss')
+gnuplot.title(figure_name_prefix .. ', tr loss')
 gnuplot.plot(table.unpack(itemsLossTr))
 
 gnuplot.figure(3)
-gnuplot.title('yelp-full, test err')
+gnuplot.title(figure_name_prefix .. ', test err')
 gnuplot.plot(table.unpack(itemsErrVal))
 
