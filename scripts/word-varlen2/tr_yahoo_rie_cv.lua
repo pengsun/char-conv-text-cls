@@ -19,11 +19,11 @@ local dataname = 'yahoo-rie-varlen-word'
 local numClasses = 10
 local trsize = 1400*1000
 
-local netname = 'cv-max-oV4'
+local netname = 'cv-max-oV5'
 local HU = 500
 local KH = 3
 
-local envSavePath = path.join('cv-sgd-rie', dataname .. '-wdOutLay1-bat100-lr0.1-oh-v4')
+local envSavePath = path.join('cv-sgd-rie', dataname .. '-wdOutLay1-bat100-lr0.1-oh-v5')
 local envSavePrefix =
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..

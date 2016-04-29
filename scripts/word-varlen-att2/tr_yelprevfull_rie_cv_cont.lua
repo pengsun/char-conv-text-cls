@@ -2,7 +2,7 @@
 require'pl.path'
 require'onehot-temp-conv'
 
-local maxEp = 60
+local maxEp = 40
 
 local function make_lrEpCheckpoint_small()
     local baseRate, factor = 0.25, 0.1
@@ -25,15 +25,15 @@ local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 local evalFreq = 1 * itPerEp -- every #epoches
 
-local envSavePath = path.join('cv-sgd', 'yelprevfull-rie-varlen-word-att-wdOutLay1-bat100-lr0.25-v2.4')
+local envSavePath = path.join('cv-sgd-rie', 'yelprevfull-rie-varlen-word-wdOutLay1-bat100-lr0.25-att-v2.8')
 
 dofile('train.lua').main{
     envContinuePath = path.join(envSavePath,
-        'HU500-KH3-CW9-cv.apV2.4-max-o_epoch24.00_lossval0.8000_errval34.65.t7'
+        'HU500-KH3-CW9-cv.apV2.8-max-o_epoch30.00_lossval0.7854_errval34.17.t7'
     ),
-    envSavePath = envSavePath .. '-cont2',
-    logSavePath = path.join(envSavePath .. '-cont2',
-        'HU500-KH3-CW9-cv.apV2.4-max-o_15:49:19@4-15-2016-cont.log'
+    envSavePath = envSavePath .. '-cont',
+    logSavePath = path.join(envSavePath .. '-cont',
+        'HU500-KH3-CW9-cv.apV2.8-max-o_15:45:40@4-26-2016-cont.log'
     ),
 
     maxEp = maxEp,

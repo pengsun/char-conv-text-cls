@@ -17,8 +17,8 @@ local dataname = 'yelprevpol-fixtail-word'
 local numClasses = 2
 local trsize = 560*1000
 
-local netname = 'cv.apV4-max-o'
-local seqLength = 225
+local netname = 'cv.apV2.8-max-o'
+local seqLength = 128
 local HU = 500
 local KH = 3
 local CW = 9
@@ -33,7 +33,7 @@ local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
 )
 
-local batSize = 250
+local batSize = 100
 local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 --local printFreq = 1
