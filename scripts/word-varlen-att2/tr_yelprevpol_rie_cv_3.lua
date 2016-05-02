@@ -4,29 +4,30 @@ local timenow = require'util.misc'.get_current_time_str()
 
 local maxEp = 30
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 2e-3, 0.97
+  local baseRate, factor = 0.25, 0.1
   local r = {}
-  for i = 1, 3 do
+  for i = 1, 24 do
     r[i] = baseRate
   end
-  for i = 4, maxEp do
-    r[i] = r[i-1] * factor
+  for i = 25, maxEp do
+    r[i] = baseRate * factor
   end
   return r
 end
 
-local dataname = 'yelprevpol-rie-varlen-word'
+local dataname = 'yelprevpol-rie-varlen-padseq-word'
 local numClasses = 2
 local trsize = 560*1000
 
-local netname = 'cv.apV2.6-max-o'
+local netname = 'cv.apV2.10-max-o'
 local HU = 500
 local KH = 3
 local CW = 9
+local padSeq = 4
 
-local envSavePath = path.join('cv-rmsprop-rie', dataname .. '-att-v2.6')
+local envSavePath = path.join('cv-sgd-rie', dataname .. '-wdOutLay1-bat100-lr0.25-att-v2.10')
 local envSavePrefix =
-        'HU' .. HU .. '-' ..
+'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
         'CW' .. CW .. '-' ..
         netname
@@ -46,6 +47,7 @@ dofile('train.lua').main{
 
   dataPath = path.join('data', dataname .. '.lua'),
   dataMask = { tr = true, val = true, te = false },
+  padSeq = padSeq,
 
   envSavePath = envSavePath,
   envSavePrefix = envSavePrefix,
@@ -68,9 +70,10 @@ dofile('train.lua').main{
   showIterTime = false,
   lrEpCheckpoint = make_lrEpCheckpoint_small(),
 
-  optimMethod = require'optim'.rmsprop,
+  optimMethod = require'optim'.sgd,
   optimState = {
-    alpha = 0.95
+    momentum = 0.9,
+    weightDecay = 0,
   },
-  weightDecayOutputLayer = 0,
+  weightDecayOutputLayer = 1e-4,
 }
