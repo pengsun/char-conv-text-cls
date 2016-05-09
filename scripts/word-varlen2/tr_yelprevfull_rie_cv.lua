@@ -19,7 +19,7 @@ local dataname = 'yelprevfull-rie-varlen-word'
 local numClasses = 5
 local trsize = 650*1000
 
-local netname = 'cv-max-oV4'
+local netname = 'cv-max-oV4.2'
 local HU = 500
 local KH = 3
 
@@ -28,7 +28,7 @@ local itPerEp = math.floor(trsize / batSize)
 local printFreq = math.ceil(0.061 * itPerEp)
 local evalFreq = 1 * itPerEp -- every #epoches
 
-local envSavePath = path.join('cv-sgd-rie', dataname ..'-wdOutLay1-bat100-lr0.1-oh-v4-tmp')
+local envSavePath = path.join('cv-sgd-rie', dataname ..'-wdOutLay1-bat100-lr0.1-oh-v4.2')
 local envSavePrefix =
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
