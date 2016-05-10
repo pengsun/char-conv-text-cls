@@ -19,11 +19,11 @@ local dataname = 'yelprevpol-rie-varlen-word'
 local numClasses = 2
 local trsize = 560*1000
 
-local netname = 'cv-max-oV4.4'
+local netname = 'cv-max-oV4.5'
 local HU = 500
 local KH = 3
 
-local envSavePath = path.join('cv-sgd-rie', dataname..'-wdOutLay1-bat100-lr0.1-oh-v4.4')
+local envSavePath = path.join('cv-sgd-rie', dataname..'-wdOutLay1-bat100-lr0.1-oh-v4.5')
 local envSavePrefix =
         'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
