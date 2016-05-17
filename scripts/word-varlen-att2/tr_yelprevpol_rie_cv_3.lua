@@ -15,17 +15,16 @@ local function make_lrEpCheckpoint_small()
   return r
 end
 
-local dataname = 'yelprevpol-rie-varlen-padseq-word'
+local dataname = 'yelprevpol-rie-varlen-word'
 local numClasses = 2
 local trsize = 560*1000
 
-local netname = 'cv.apV2.10-max-o'
+local netname = 'cv.apV1.1-max-o'
 local HU = 500
 local KH = 3
 local CW = 9
-local padSeq = 4
 
-local envSavePath = path.join('cv-sgd-rie', dataname .. '-wdOutLay1-bat100-lr0.25-att-v2.10')
+local envSavePath = path.join('cv-sgd-rie', dataname .. '-wdOutLay1-bat100-lr0.25-att-v1.1')
 local envSavePrefix =
 'HU' .. HU .. '-' ..
         'KH' .. KH .. '-' ..
@@ -47,7 +46,6 @@ dofile('train.lua').main{
 
   dataPath = path.join('data', dataname .. '.lua'),
   dataMask = { tr = true, val = true, te = false },
-  padSeq = padSeq,
 
   envSavePath = envSavePath,
   envSavePrefix = envSavePrefix,
