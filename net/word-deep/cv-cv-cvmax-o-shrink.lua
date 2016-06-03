@@ -15,19 +15,14 @@ this.main = function(opt)
     assert(type(HU)=='table' and #HU == 3) -- 3 layers
 
     local kH = opt.KH or error('no opt.KH')
-    local function get_pad(width)
-        assert(width %2 == 1)
-        return (width -1)/2
-    end
-    local pad = get_pad(kH)
-
+    local pad = 1
     local indUnknown = 1
 
     local md = nn.Sequential()
 
     -- B, M (,V)
     md:add( ohnn.OneHotTemporalSeqConvolution(V, HU[1], kH, {
-        hasBias = true, padBegLen = pad, padEndLen = pad, padIndValue = indUnknown
+        hasBias = true, padBegLen = 0, padEndLen = 0, padIndValue = indUnknown
     }) )
     md:add( cudnn.ReLU(true) )
     -- B, M, HU1

@@ -1,6 +1,6 @@
 require'nn'
 require'cudnn'
-require'onehot-temp-conv'
+require'ohnn'
 
 --cudnn.fastest = true
 
@@ -9,44 +9,44 @@ local this = {}
 this.main = function(opt)
     local opt = opt or {}
     local K = opt.numClasses or 2 -- #classes
-    local B = opt.batSize or 16 -- batch size
     local V = opt.V or 300 -- vocabulary/embedding size
-    local M = opt.seqLength or 291
 
     local HU = opt.HU or error('no opt.HU')
     assert(type(HU)=='table' and #HU == 3) -- 3 layers
 
     local kH = opt.KH or error('no opt.KH')
-    local pool = 2
+    local function get_pad(width)
+        assert(width %2 == 1)
+        return (width -1)/2
+    end
+    local pad = get_pad(kH)
+
+    local indUnknown = 1
 
     local md = nn.Sequential()
 
     -- B, M (,V)
-    md:add( nn.OneHotTemporalConvolution(V, HU[1], kH) )
+    md:add( ohnn.OneHotTemporalSeqConvolution(V, HU[1], kH, {
+        hasBias = true, padBegLen = pad, padEndLen = pad, padIndValue = indUnknown
+    }) )
     md:add( cudnn.ReLU(true) )
-    -- B, M-kH+1, HU1
+    -- B, M, HU1
     md:add( nn.Transpose({2,3}) )
-    -- B, HU1, M-kH+1
+    -- B, HU1, M
     md:add( nn.Unsqueeze(3, 2) )
-    -- B, HU1, M-kH+1, 1
-    md:add( cudnn.SpatialMaxPooling(1, pool) )
-    md:add( nn.Dropout() )
-    -- B, HU1, M', 1
+    -- B, HU1, M, 1
 
-    -- B, HU1, M', 1
-    md:add( cudnn.SpatialConvolution(HU[1], HU[2], 1, kH) )
+    -- B, HU1, M, 1
+    md:add( cudnn.SpatialConvolution(HU[1], HU[2], 1, kH, 1,1, 0,pad) )
     md:add( cudnn.ReLU(true) )
-    -- B, HU2, M'-kH+1, 1
-    md:add( cudnn.SpatialMaxPooling(1, pool) )
-    md:add( nn.Dropout() )
-    -- B, HU2, M'', 1
+    -- B, HU2, M, 1
 
-    -- B, HU2, M'', 1
-    md:add( cudnn.SpatialConvolution(HU[2], HU[3], 1, kH) )
+    -- B, HU2, M, 1
+    md:add( cudnn.SpatialConvolution(HU[2], HU[3], 1, kH, 1,1, 0,pad) )
     md:add( cudnn.ReLU(true) )
-    -- B, HU3, M''-kH+1, 1
+    -- B, HU3, M, 1
     md:add( nn.Max(3) )
-    md:add( nn.Dropout() )
+    md:add( nn.Dropout(0.5, false, true) )
     -- B, HU3, 1
 
     -- B, HU3, 1
@@ -59,10 +59,10 @@ this.main = function(opt)
 
     local function reinit_params(md)
         local b = opt.paramInitBound or 0.08
-        print( ('reinit params uniform, [%4.3f, %4.3f]'):format(-b,b) )
+        print( ('reinit params gaussian, var = %4.3f'):format(b) )
 
         local params, _ = md:getParameters()
-        params:uniform(-b,b)
+        params:normal(0, b)
     end
     reinit_params(md)
 

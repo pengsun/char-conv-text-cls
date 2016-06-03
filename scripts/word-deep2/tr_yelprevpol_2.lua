@@ -4,7 +4,7 @@ local timenow = require'util.misc'.get_current_time_str()
 
 local maxEp = 80
 local function make_lrEpCheckpoint_small()
-  local baseRate, factor = 0.1, 0.1
+  local baseRate, factor = 0.25, 0.1
   local r = {}
   for i = 1, 30 do
     r[i] = baseRate
@@ -22,13 +22,13 @@ local dataname = 'yelprevpol-rie-varlen-word'
 local numClasses = 2
 local trsize = 560*1000
 
-local netname = 'cv-cv-cvmax-o'
+local netname = 'cv-cv-cvmax-o-shrink'
 local HU = {100, 50, 50}
-local KH = 3
+local KH = 2
 
 local envSavePath = path.join('cv', dataname..'-'..netname)
 local envSavePrefix =
-  'HU1' .. HU[1] .. 'HU2' .. HU[2] .. 'HU3' .. HU[3] .. '-' ..
+  'HU1-' .. HU[1] .. '-HU2-' .. HU[2] .. '-HU3-' .. HU[3] .. '-' ..
   'KH' .. KH
 local logSavePath = path.join(envSavePath,
   envSavePrefix ..'_' .. timenow .. '.log'
@@ -58,7 +58,7 @@ dofile('train.lua').main{
 
   batSize = batSize,
   maxEp = maxEp,
-  paramInitBound = 0.01,
+  paramInitBound = 0.05,
 
   printFreq = printFreq,
   evalFreq = evalFreq, -- every #epoches
